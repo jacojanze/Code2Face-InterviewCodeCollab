@@ -1,0 +1,9 @@
+.main-nav {
+    max-width: 70vw;
+    margin: auto;
+    /* display: flex; */
+    height: 10rem;
+    padding: 0.5rem;
+    display: grid;
+    grid-template-columns: 10rem 3fr 3fr 12rem;
+}
