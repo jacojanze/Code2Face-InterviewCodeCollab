@@ -1,3 +1,4 @@
+/* global */
 .App {
   text-align: center;
 }
@@ -9,6 +10,25 @@
 
 a{
     text-emphasis: none;
-    text-decoration: none;
-    color: black;
+    text-decoration: none !important;
+    color: black !important;
+}
+
+.mmb {
+    margin: 15px auto;
+}
+
+
+/* home */
+.main-home{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap-reverse;
+    align-items: center;
+    padding: auto;
+    margin: auto 15vw;
+}
+
+.cen-container{
+    padding-left: 4vw;
 }

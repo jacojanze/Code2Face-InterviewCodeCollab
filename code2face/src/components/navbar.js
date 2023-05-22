@@ -1,46 +1,58 @@
-import React, {useState, useEffect, useContext} from 'react'
-import { UserContext } from '../App'
-import {NavDropdown, Navbar, NavbarBrand, OffcanvasBody} from 'react-bootstrap'
-import { Link } from 'react-router-dom'
-
+import React,{ useContext } from "react";
+import { Link } from "react-router-dom";
+import { UserContext } from "../App";
+import { useNavigate } from "react-router-dom";
+import { NavbarBrand } from "react-bootstrap";
 import "../styles/navbar.css"
-const NavList = () => {
-    return (
-        <>
-            <NavDropdown>
-                <NavDropdown.Item>Login</NavDropdown.Item>
-            </NavDropdown>
-        </>
-    )
-}
 
-const MyNavbar = () => {
-
-    let {state, dispatch} = useContext(UserContext)
-    const jwt = localStorage.getItem('xxklx')
-    if(jwt) state=true;
+const Navbar = () => {
+	let { state, dispatch } = useContext(UserContext);
+	const history = useNavigate()
+	let jwt = localStorage.getItem("jwt")
+	if(jwt) {
+		state=true;
+	}
 
 
+	const renderList = () => {
+		if (state) {
+			return [
+				<>
+					<Link className="navlink" to="/profile">Profile</Link>
+					<Link className="navlink" to="/newPost">new post</Link>
+					<button className="btn btn-primary" onClick={() => {
+							localStorage.clear();
+							dispatch({type:"CLEAR"})
+							history('/')
+						}
+						}>
+						Logout
+					</button>
+				
+				</>
+			];
+		} else {
+			return [
+				<>
+					<Link className="navlink" to="/login">Login</Link>
+					<Link className="navlink" to="/register">Register</Link>
+					
+				</>,
+			];
+		}
+	};
 
-    return (
-        <nav className='main-nav'>
-            <NavbarBrand>Code2Face</NavbarBrand>
-            {/* <Link>Login</Link>
-            <Link>Register</Link> */}
-            <NavList />
-        </nav>
-        // <Navbar>
-        //     <Navbar.Brand >
-        //         Code2Face
-        //     </Navbar.Brand>
-        //     {/* <Navbar.Toggle aria-controls='offcanvasNavbar-expand-lg' /> */}
-        //     {/* <Navbar.Offcanvas >
-        //         <OffcanvasBody> */}
-        //             <NavList/>
-        //         {/* </OffcanvasBody>
-        //     </Navbar.Offcanvas> */}
-        // </Navbar>
-    )
-}
+	return (
+		<nav className="main-nav">
+			{/* <div className="logo" ><h3 href="/">Code2Face</h3></div> */}
+            <NavbarBrand className="logo">
+                <Link to="/">
+                    Code2Face
+                </Link>
+            </NavbarBrand>
+			<div className="navlinks">{renderList()}</div>
+		</nav>
+	);
+};
 
-export default MyNavbar
+export default Navbar;

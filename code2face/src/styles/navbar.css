@@ -1,9 +1,40 @@
 .main-nav {
-    max-width: 70vw;
+    background-color: rgb(213, 232, 248);
     margin: auto;
-    /* display: flex; */
-    height: 10rem;
-    padding: 0.5rem;
-    display: grid;
-    grid-template-columns: 10rem 3fr 3fr 12rem;
+    width: 80vw;
+    align-items: center;
+    height: 5rem;
+    display: grid; 
+    grid-template-columns:  3fr 3fr 0.5fr; 
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px -4px rgb(20, 19, 20);
+}
+
+
+.logo{
+    font-family:  sans-serif;
+    font-weight: 600;
+    font-size: 20px !important;
+    /* text-align: left; */
+    /* left: -120px; */
+    padding-right: 10vw;
+}
+
+
+.navlinks{
+    display: flex; 
+    margin-left: auto;
+}
+
+.navlink {
+    padding: 10px;
+    margin: 0 5px;
+}
+
+.navlink:hover {
+    color: blueviolet !important;
+    background-color: aliceblue;
+    border-radius: 12px;
+    box-shadow: 0 6px 3px -2px lightblue;
+
 }

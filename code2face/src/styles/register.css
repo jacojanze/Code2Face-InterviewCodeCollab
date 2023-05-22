@@ -1,0 +1,26 @@
+.central {
+    align-items: center;
+    margin: auto;
+    margin-top: 2em;
+    width: min(50vw,400px);
+    /* height: 40vh; */
+    padding: 2em;
+    border: solid 1px rgba(54, 55, 58, 0.125);
+    border-radius: 2em;
+    box-shadow: 0 12px 8px -4px lightblue;
+    /* font-size: large; */
+}
+
+.fin{
+    width: 100%;
+    font-size: 2rem;
+}
+
+input{ 	
+    /* width: max(10vw,250px); */
+	padding: 4px;            /* Overridden by font: -webkit-small-control; */
+	border: 0;  
+    border-bottom: solid 2px black;
+    font-size: 18px;
+}
+
