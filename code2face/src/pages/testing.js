@@ -3,7 +3,7 @@ import Editor from '../components/editor'
 
 const Testing = () => {
   return (
-    <div className='callpage'>Testing
+    <div className='callpage'>
         <Editor/>
     </div>
   )
