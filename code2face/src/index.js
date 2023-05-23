@@ -1,14 +1,16 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import {createRoot} from 'react-dom/client'
 import './index.css';
 import App from './App';
-
+// import { ContextProvider } from './Context';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const root = document.getElementById('root');
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  root
+const root_element = document.getElementById('root');
+const root= createRoot(root_element)
+root.render(
+    <React.StrictMode>
+        {/* <ContextProvider> */}
+            <App/>
+        {/* </ContextProvider> */}
+    </React.StrictMode>
 );

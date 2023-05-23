@@ -27,8 +27,73 @@ a{
     align-items: center;
     padding: auto;
     margin: auto 15vw;
+    text-align: center;
 }
 
 .cen-container{
-    padding-left: 4vw;
+    padding: auto;
+    margin: auto;
+}
+
+.genInp{
+    width: 180px !important;
+    display: inline !important;
+    margin: 0 !important;
+    border-radius: 5px 0px 0px 5px !important;
+}
+
+.gen-btn{
+    border-radius: 0px 5px 5px 0px !important;
+
+}
+
+
+
+
+
+/* error page  */
+.errorpage{
+    margin: 3em;
+}
+
+.errorpage span {
+    font-size: 24px;
+    color: rgb(219, 39, 39);
+}
+
+
+/* callpage */
+.callpage{
+    margin: 1em 5em;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    text-align: center;
+}
+
+.vcont{
+    margin: auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.velement {
+    padding: 2px;
+    margin: auto;
+}
+
+video {
+    width: 30vw;
+    /* height: 35vh; */
+    border-radius: 1em;
+    border: solid 1px grey;
+    margin: auto;
+}
+
+
+.ECcont {
+    background-color: antiquewhite;
+    width:50vw;
+    height: 80vh;
 }
