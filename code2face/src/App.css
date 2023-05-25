@@ -1,7 +1,7 @@
 /* global */
-.App {
+/* .App {
   text-align: center;
-}
+} */
 
 .App-logo {
   height: 40vmin;
@@ -68,7 +68,7 @@ a{
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-items: center;
-    text-align: center;
+    /* text-align: center; */
 }
 
 .vcont{
@@ -79,13 +79,13 @@ a{
 }
 
 .velement {
-    padding: 2px;
+    /* padding: 2px; */
     margin: auto;
 }
 
 video {
-    width: 30vw;
-    /* height: 35vh; */
+    width: 25vw;
+    /* height: 17vw; */
     border-radius: 1em;
     border: solid 1px grey;
     margin: auto;
@@ -93,7 +93,7 @@ video {
 
 
 .ECcont {
-    background-color: antiquewhite;
+    /* background-color: antiquewhite; */
     width:50vw;
     height: 80vh;
 }

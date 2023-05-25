@@ -81,7 +81,7 @@ const ContextProvider = ({children}) => {
         connectionRef.current.destroy();
     
         window.location.reload();
-      };
+    };
 
     return(
         <SocketContext.Provider 

@@ -8,9 +8,11 @@ import MyNavbar from './components/navbar';
 import Register from './components/Register';
 import Login from './components/Login';
 import Home from './pages/home';
-// import CallPage from './pages/callPage';
+import CallPage from './pages/callPage';
 import NotFound from './pages/NotFound';
 import Testing from './pages/testing';
+import { Toaster } from 'react-hot-toast';
+
 
 export const UserContext = createContext();
 
@@ -20,6 +22,11 @@ function App() {
 	const [state, dispatch] = useReducer(reducer, initialState);
     return (
         <UserContext.Provider value={{state,dispatch}}>
+            <div>
+                <Toaster 
+                    position='top-right'
+                />
+            </div>
             <Router >
                 <div className='App'>
                     <MyNavbar/>
@@ -28,7 +35,7 @@ function App() {
                                 <Route eaxct path="/" element={<Home/>} />
                                 <Route exact path="/register" element={<Register/>} />
                                 <Route exact path="/login" element={<Login />} />
-                                {/* <Route exact path="/call/:sid" element={<CallPage/>} /> */}
+                                <Route exact path="/call/:roomId" element={<CallPage/>} />
                                 <Route exact path='testing' element={<Testing/>} />
                                 <Route path="*" element={<NotFound/>} />
                         </Routes>

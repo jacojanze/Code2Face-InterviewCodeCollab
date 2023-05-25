@@ -2,7 +2,9 @@ import React, { useState } from 'react'
 import { Image, Form, Button } from 'react-bootstrap'
 import {useNavigate} from 'react-router-dom'
 import ShortUniqueId from 'short-unique-id';
-
+import toast from 'react-hot-toast'
+import CopyToClipboard from 'react-copy-to-clipboard';
+import copy from 'copy-to-clipboard';
 
 const Home = () => {
     const Suid = new ShortUniqueId()
@@ -15,7 +17,10 @@ const Home = () => {
     const [sid1, setSid1] = useState('')
     const [validText, setvalidText] = useState(valt)
     const alphanumericRegex = /^[a-zA-Z0-9]+$/;
-
+    const [copier, setCopier] = useState({
+        value:'',
+        copied:false
+    })
   
 
     const handleChange1 = (e) => {
@@ -38,10 +43,25 @@ const Home = () => {
         setFclick(true)
         let code  = Suid(10);
         setSid(code)
+        if (copy(code))
+            toast.success('Session ID copied')
+        else toast.error('Cannot copy to clipboard')
     }
 
     const handleJoin = async ()=> {
-        
+        if(sid.length==0 && sid1.length==0) {
+            toast('Please generate or fill the Session ID', {
+                icon: '❕',
+              });
+            return;
+        }
+        toast.success('Joining new Call')
+        const roomId = sid.length>0?sid:sid1
+        history(`/call/${roomId}`, {
+            state: {
+                username:'Vineeth',
+            },
+        });
     }
     
     return (
@@ -66,16 +86,17 @@ const Home = () => {
                                         // onChange={handleChange}
                                         value={sid}
                                     />
-                                    <Button className="btn-dark gen-btn"
-                                        onClick={generateCode}
-                                    >Generate {fclick ? 'Again' : 'Code'}</Button>
+                                    {/* <CopyToClipboard> */}
+                                        <Button className="btn-dark gen-btn"
+                                            onClick={generateCode}
+                                        >Generate {fclick ? 'Again' : 'Code'}</Button>
+                                    {/* </CopyToClipboard> */}
                                 </Form.Group>
                                 <Form.Group >
                                     <Button onClick={handleJoin}>Start</Button>
                                 </Form.Group>
                             </Form>
                             
-
                         </div>
                         <div className='jcontent mt-4'>
                             <h4>Join with Code</h4>
