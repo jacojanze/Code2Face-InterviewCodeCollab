@@ -6,34 +6,32 @@ import Editor from '../components/editor';
 import ACTIONS from '../Actions';
 import {io} from 'socket.io-client'
 import Peer from 'simple-peer';
-
+import { Button } from "react-bootstrap";
 const SocketContext = createContext();
 
 const socket = io('http://172.19.19.204:3007');
 
 
-const VElement = (userVideo) => {
-    return (
-        <div className='velement'>
-            <video playsInline ref={userVideo} muted autoPlay className='' />
-        </div>
-    )
-}
 
 const CallPage = () => {
     
+    const location = useLocation();
+    const history = useNavigate();
+    const myName = location.state?.username
+    
+    const [clients, setClients] = useState([]);
     const { roomId } = useParams();
     const [stream, setstream] = useState()
     const [accept, setAccept] = useState(false)
     const [ended, setEnded] = useState(false)
+    const [otherName, setOtherName] = useState('')
 
     const myVideo = useRef()
-    const userVideo = useRef();
+    const userVideo = useRef()
+    const connectionRef = useRef();
     const socketRef = useRef(null);
     const codeRef = useRef(null);
-    const location = useLocation();
-    const history = useNavigate();
-    const [clients, setClients] = useState([]);
+    let dclient = {}
 
 
     useEffect(() => {
@@ -44,6 +42,8 @@ const CallPage = () => {
                 dataStream= videoStream
                 setstream(videoStream);
                 myVideo.current.srcObject = videoStream;
+                // initialize socket
+                init()
             })
             .catch(err => {
                 setstream('/noCam.png')
@@ -61,11 +61,64 @@ const CallPage = () => {
                 history('/');
                 return
             }
-            // console.log(socketRef);
+
+            //Send join info
             socketRef.current.emit(ACTIONS.JOIN, {
                 roomId,
-                username: location.state?.username,
+                username: myName,
             });
+
+            function InitPeer(type) {
+                let peer = new Peer({initiator: type=='init' ? true : false, stream, trickle: false})
+                peer.on('stream', (ustream) => {
+                    const vel = (
+                        <div className='row'>
+                            <div className='velement'>
+
+                                {/* <video playsInline ref={ustream} muted autoPlay className='' /> */}
+                            </div>
+                        </div>
+                    )
+                    document.querySelector('#peerDiv').appendChild(vel)
+                })
+                peer.on('data', (data) => {
+                    userVideo.current.srcObject = data
+                })
+                console.log(1);
+                
+                return peer
+            }
+
+            //for peer of type init
+            function MakePeer() {
+                dclient.gotAnswer = false
+                let peer = InitPeer('init')
+                peer.on('signal', function (data) {
+                    if (!dclient.gotAnswer) {
+                        socket.emit('Offer', data)
+                    }
+                })
+                console.log(12);
+                dclient.peer = peer
+            }
+
+            // for peer of type not init
+            function FrontAnswer(offer) {
+                let peer = InitPeer('notInit')
+                peer.on('signal', (data) => {
+                    socket.emit('Answer', data)
+                })
+                peer.signal(offer)
+                console.log(1123);
+                dclient.peer = peer
+            }
+
+            function SignalAnswer(answer) {
+                dclient.gotAnswer = true
+                let peer = dclient.peer
+                peer.signal(answer)
+            }
+
 
             // Listening for joined event
             socketRef.current.on(
@@ -73,15 +126,22 @@ const CallPage = () => {
                 ({ clients, username, socketId }) => {
                     if (username !== location.state?.username) {
                         toast.success(`${username} joined the room.`);
-                        console.log(`${username} joined`);
+                 
                     }
-                    setClients(clients);
-                    socketRef.current.emit(ACTIONS.SYNC_CODE, {
-                        code: codeRef.current,
-                        socketId,
-                    });
+                    // setClients(clients);
                 }
             );
+            
+            // recv user stream
+            socketRef.current?.on(ACTIONS.RECV_STREAM, ({ username, stream }) => {
+                console.log(`Received stream from ${username}`, stream);
+                const video = document.getElementById('received-video');
+                if (video) {
+                    // video.srcObject = stream;
+                }
+                userVideo.current.srcObject = stream
+
+              });
 
             // Listening for disconnected
             socketRef.current.on(
@@ -96,9 +156,8 @@ const CallPage = () => {
                 }
             );
         };
-        //initiate socket
-        init();
-        // console.log(roomId);
+
+        
         // Clean up function to remove camera permissions ans end socket
         return () => {
             if (dataStream) {
@@ -114,6 +173,8 @@ const CallPage = () => {
     }, []);
 
     function leaveRoom() {
+        setEnded(true)
+        socketRef.current.destroy();
         history('/');
     }
 
@@ -121,38 +182,51 @@ const CallPage = () => {
         return <Navigate to="/" />;
     }
 
-    // console.log(context);
+    const handleSendStream = () => {
+        console.log(stream);
+        socketRef.current.emit(ACTIONS.SEND_STREAM, {
+        username:myName, // Replace with the appropriate username
+        roomId,
+        stream
+        });
+    };
+    
+
+
 
     return (
         <div className='callpage'>
-            <div className='vcont'>
+            <div className='vcont' id='peerDiv'>
                 <div className='row'>
                 {
-                    stream && (
-                        <div className='velement'>
-                            <video playsInline ref={myVideo} muted autoPlay className='' />
-                        </div>
-                    )
-                }
-                {/* {
-                    accept && !ended && 
+                    stream &&
                     (
                         <div className='velement'>
 
-                            <video playsInline ref={userVideo} muted autoPlay className='' />
+                            <video playsInline ref={myVideo} muted autoPlay className='' id="myvid" />
                         </div>
                     )
-                } */}
-                    <div className="clientsList">
-                        {clients.map((client) => {
-                            // console.log(client.socketId)
-                            // <VElement key={client.id}  userVideo= {userVideo} />
-                        })}
-                    </div>
+                    
+                }
                 </div>
+                <div className='row'>
+                {
+                    userVideo && 
+                    (
+                        <div className='velement'>
+                            
+                            <video playsInline ref={userVideo} muted autoPlay className='' id='received-video' />
+                        </div>
+                    )
+                }
+                    
+                </div>
+
                 
                 <div className='row options'>
+                    <Button onClick={handleSendStream}>Send Stream</Button>
 
+                    <Button onClick={leaveRoom} className="mt-5">Leave</Button>
                 </div>
                 
             </div>

@@ -11,7 +11,7 @@ const Home = () => {
     const history = useNavigate()
     const valt = 'Enter the Session Id', invalt = 'Invalid Session  Id';
     const lenvalt = 'Enter only 10 characters Session Id';
-    // var fclick=false;
+    const [uname, setuname] = useState('')    
     const [fclick, setFclick] = useState(false)
     const [sid, setSid] = useState('')
     const [sid1, setSid1] = useState('')
@@ -38,6 +38,10 @@ const Home = () => {
         setSid1(input)
     }
 
+    const handleNameChange = (e) => {
+        setuname(e.target.value)
+    }
+
     const generateCode = (e) => {
         e.preventDefault();
         setFclick(true)
@@ -55,11 +59,15 @@ const Home = () => {
               });
             return;
         }
+        if(uname.length==0) {
+            toast.error("Name field is empty")
+            return;
+        }
         toast.success('Joining new Call')
         const roomId = sid.length>0?sid:sid1
         history(`/call/${roomId}`, {
             state: {
-                username: Date.now(),
+                username: uname,
             },
         });
     }
@@ -73,6 +81,23 @@ const Home = () => {
                 <div className='central'>
                     <div className='d-flex flex-column'>
                         <div className='jcontent'>
+                            <h4>Welcome to Code2Face</h4>
+
+                            <Form>
+                                <Form.Group className="mmb fin d-flex" controlId="">
+                                    
+                                    <Form.Control 
+                                        type="text" 
+                                        placeholder="Enter your good Name" 
+                       
+                                        name="uname"
+                                        onChange={handleNameChange}
+                                        value={uname}
+                                    />
+                                </Form.Group>
+                            </Form>
+                        </div>
+                        <div className='jcontent mt4'>
                             <h4>Start a New Session</h4>
                             <Form>
                                 <Form.Group className="mmb fin d-flex" controlId="">

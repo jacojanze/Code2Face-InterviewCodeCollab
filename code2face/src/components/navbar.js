@@ -34,7 +34,7 @@ const Navbar = () => {
 		} else {
 			return [
 				<>
-                    <Link to='/testing' className="navlink">Test</Link> 
+                    {/* <Link to='/testing' className="navlink">Test</Link>  */}
 					<Link key='login' className="navlink" to="/login">Login</Link>
 					<Link key='register' className="navlink" to="/register">Register</Link>
 					
@@ -48,7 +48,8 @@ const Navbar = () => {
 			{/* <div className="logo" ><h3 href="/">Code2Face</h3></div> */}
             <NavbarBrand className="logo">
                 <Link to="/">
-                    Code2Face
+                    {/* Code2Face */}
+                    Test
                 </Link>
             </NavbarBrand>
 			<div className="navlinks">{renderList()}</div>

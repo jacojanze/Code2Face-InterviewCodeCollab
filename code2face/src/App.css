@@ -74,7 +74,7 @@ a{
 .vcont{
     margin: auto;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-wrap: wrap;
 }
 

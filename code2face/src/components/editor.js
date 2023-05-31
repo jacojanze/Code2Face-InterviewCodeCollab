@@ -54,7 +54,7 @@ five`);
             zIndex: `999`,
             borderRadius: `10px`,
           },
-        onChange:  (editor, data, value) => {
+        onChange:  (value) => {
             socketRef.current.emit(ACTIONS.CODE_CHANGE, {
                 roomId,
                 code:value,
@@ -89,31 +89,22 @@ five`);
 
 
     useEffect(() => {
-        if(!editorRef) {
+        if(!editorRef.current) {
             alert('error loading editor')
             history('/')
         }
         if(editorRef.current) {
             setContainer(editorRef.current)
         }
-        // editorRef.current.on('change', k => {
-        //     console.log(k);
-        // })
-        // editorRef.current
-        // console.log(socketRef.current);
 
         socketRef.current?.on(ACTIONS.CODE_CHANGE, (data) => {
             if(data !==null && data.code!==null && data.code!=code) {
-                setContainer?.editor?.setValue(data.code)
+                setCode(data.code)
+            }   
 
-            }
-            // console.log(data);
         })
-        
-        // console.log(set);
 
     },[editorRef.current,socketRef.current])
-    console.log(setContainer);
 
     return (
         <div className='editorcomponent'>
