@@ -61,7 +61,7 @@ const CallPage = () => {
                 history('/');
                 return
             }
-            console.log(socketRef);
+            // console.log(socketRef);
             socketRef.current.emit(ACTIONS.JOIN, {
                 roomId,
                 username: location.state?.username,
@@ -98,16 +98,16 @@ const CallPage = () => {
         };
         //initiate socket
         init();
-        console.log(roomId);
+        // console.log(roomId);
         // Clean up function to remove camera permissions ans end socket
         return () => {
             if (dataStream) {
-            const tracks = dataStream.getTracks();
-            tracks.forEach((track) => track.stop());
+                const tracks = dataStream.getTracks();
+                tracks.forEach((track) => track.stop());
             }
-            socketRef.current?.disconnect();
             socketRef.current?.off(ACTIONS.JOINED);
             socketRef.current?.off(ACTIONS.DISCONNECTED);
+            socketRef.current?.disconnect();
         };
 
         
@@ -144,10 +144,10 @@ const CallPage = () => {
                     )
                 } */}
                     <div className="clientsList">
-                        {clients.map((client) => (
-                            console.log(client.id)
+                        {clients.map((client) => {
+                            // console.log(client.socketId)
                             // <VElement key={client.id}  userVideo= {userVideo} />
-                        ))}
+                        })}
                     </div>
                 </div>
                 

@@ -59,7 +59,7 @@ const Home = () => {
         const roomId = sid.length>0?sid:sid1
         history(`/call/${roomId}`, {
             state: {
-                username:'Vineeth',
+                username: Date.now(),
             },
         });
     }

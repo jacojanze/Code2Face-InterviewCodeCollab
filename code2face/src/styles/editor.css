@@ -2,6 +2,8 @@
 	text-align: left !important;
 }
 
-.ide{
-	text-align: left !important;
+.cm-editor{
+	/* text-align: left !important; */
+	border: solid 2px gray;
+	border-radius: 10px;
 }
