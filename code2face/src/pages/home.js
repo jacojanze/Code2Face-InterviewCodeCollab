@@ -117,9 +117,9 @@ const Home = () => {
                                         >Generate {fclick ? 'Again' : 'Code'}</Button>
                                     {/* </CopyToClipboard> */}
                                 </Form.Group>
-                                <Form.Group >
+                                {/* <Form.Group >
                                     <Button onClick={handleJoin}>Start</Button>
-                                </Form.Group>
+                                </Form.Group> */}
                             </Form>
                             
                         </div>
@@ -138,7 +138,7 @@ const Home = () => {
                                     <Form.Text>{validText}</Form.Text>
                                 </Form.Group>
                                 <Form.Group >
-                                    <Button onClick={handleJoin}>Join</Button>
+                                    <Button onClick={handleJoin}>Join Call</Button>
                                 </Form.Group>
                             </Form>
 

@@ -44,10 +44,32 @@ const CallPage = () => {
                 myVideo.current.srcObject = videoStream;
                 // initialize socket
                 init()
+
+                var peer1 = new Peer({ initiator: true, stream: stream })
+           
+
+                peer1.on('signal', data => {
+         
+                    console.log(data, '1');
+                })
+
+         
+                peer1.on('stream', stream => {
+                    // got remote video stream, now let's show it in a video tag
+                    var video = document.querySelector('video')
+
+                    if ('srcObject' in video) {
+                    video.srcObject = stream
+                    } else {
+                    video.src = window.URL.createObjectURL(stream) // for older browsers
+                    }
+
+                    video.play()
+                })
             })
-            .catch(err => {
-                setstream('/noCam.png')
-            })
+            .catch((error) => {
+                console.log(error);
+            });
 
         //socket connecting function
         const init = async () => {
@@ -68,58 +90,6 @@ const CallPage = () => {
                 username: myName,
             });
 
-            function InitPeer(type) {
-                let peer = new Peer({initiator: type=='init' ? true : false, stream, trickle: false})
-                peer.on('stream', (ustream) => {
-                    const vel = (
-                        <div className='row'>
-                            <div className='velement'>
-
-                                {/* <video playsInline ref={ustream} muted autoPlay className='' /> */}
-                            </div>
-                        </div>
-                    )
-                    document.querySelector('#peerDiv').appendChild(vel)
-                })
-                peer.on('data', (data) => {
-                    userVideo.current.srcObject = data
-                })
-                console.log(1);
-                
-                return peer
-            }
-
-            //for peer of type init
-            function MakePeer() {
-                dclient.gotAnswer = false
-                let peer = InitPeer('init')
-                peer.on('signal', function (data) {
-                    if (!dclient.gotAnswer) {
-                        socket.emit('Offer', data)
-                    }
-                })
-                console.log(12);
-                dclient.peer = peer
-            }
-
-            // for peer of type not init
-            function FrontAnswer(offer) {
-                let peer = InitPeer('notInit')
-                peer.on('signal', (data) => {
-                    socket.emit('Answer', data)
-                })
-                peer.signal(offer)
-                console.log(1123);
-                dclient.peer = peer
-            }
-
-            function SignalAnswer(answer) {
-                dclient.gotAnswer = true
-                let peer = dclient.peer
-                peer.signal(answer)
-            }
-
-
             // Listening for joined event
             socketRef.current.on(
                 ACTIONS.JOINED,
@@ -128,20 +98,29 @@ const CallPage = () => {
                         toast.success(`${username} joined the room.`);
                  
                     }
-                    // setClients(clients);
+                    localStorage.setItem('sockId', socketId)
                 }
             );
             
             // recv user stream
             socketRef.current?.on(ACTIONS.RECV_STREAM, ({ username, stream }) => {
-                console.log(`Received stream from ${username}`, stream);
-                const video = document.getElementById('received-video');
-                if (video) {
-                    // video.srcObject = stream;
-                }
-                userVideo.current.srcObject = stream
-
+                // setAccept(true)
+                // console.log(`Received stream from ${username}`,stream);
+                // const video = document.getElementById('received-video');
+                // console.log(video);
+                // // userVideo.current?.srcObject = stream
+                // video.srcObject = stream
+                // if (video) {
+                //     if ('srcObject' in video) {
+                //       video.srcObject = stream;
+                //     } else {
+                //       console.error('srcObject is not supported in this browser.');
+                //     }
+                //   } else {
+                //     console.error('Video element with id "received-video" not found.');
+                //   }
               });
+
 
             // Listening for disconnected
             socketRef.current.on(
@@ -182,49 +161,43 @@ const CallPage = () => {
         return <Navigate to="/" />;
     }
 
+    // if(stream==null) alert('Please accept camera permissions prompt')
+
     const handleSendStream = () => {
-        console.log(stream);
-        socketRef.current.emit(ACTIONS.SEND_STREAM, {
-        username:myName, // Replace with the appropriate username
-        roomId,
-        stream
-        });
+        // const video = document.getElementById('myvid');
+        // console.log('sending stream', video.srcObject);
+
+        // socketRef.current.emit(ACTIONS.SEND_STREAM, {
+        // username:myName,
+        // roomId,
+        // stream:video.srcObject
+        // });
     };
     
-
-
 
     return (
         <div className='callpage'>
             <div className='vcont' id='peerDiv'>
                 <div className='row'>
-                {
-                    stream &&
-                    (
+                    {  stream && (
                         <div className='velement'>
 
                             <video playsInline ref={myVideo} muted autoPlay className='' id="myvid" />
                         </div>
                     )
-                    
                 }
                 </div>
                 <div className='row'>
-                {
-                    userVideo && 
-                    (
+                {   accept &&   (
                         <div className='velement'>
                             
                             <video playsInline ref={userVideo} muted autoPlay className='' id='received-video' />
                         </div>
                     )
                 }
-                    
                 </div>
-
-                
                 <div className='row options'>
-                    <Button onClick={handleSendStream}>Send Stream</Button>
+                    {/* <Button onClick={handleSendStream}>Send Stream</Button> */}
 
                     <Button onClick={leaveRoom} className="mt-5">Leave</Button>
                 </div>
