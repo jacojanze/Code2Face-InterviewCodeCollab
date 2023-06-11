@@ -7,9 +7,61 @@ import ACTIONS from '../Actions';
 import {io} from 'socket.io-client'
 import Peer from 'simple-peer';
 import { Button } from "react-bootstrap";
+
+import * as faceapi from 'face-api.js'
+import * as tf from '@tensorflow/tfjs';
+import * as facemesh from '@tensorflow-models/face-landmarks-detection';
+
+
 const SocketContext = createContext();
 
 const socket = io('http://172.19.19.204:3007');
+
+const MOTION_THRESHOLD = 10;
+
+let previousLandmarks = null;
+
+function analyzeFaceMotions(predictions) {
+  const currentLandmarks = predictions[0].scaledMesh;
+
+  if (previousLandmarks) {
+    let totalMotion = 0;
+    for (let i = 0; i < currentLandmarks.length; i++) {
+      const dx = currentLandmarks[i][0] - previousLandmarks[i][0];
+      const dy = currentLandmarks[i][1] - previousLandmarks[i][1];
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      totalMotion += distance;
+    }
+
+    const averageMotion = totalMotion / currentLandmarks.length;
+
+    if (averageMotion > MOTION_THRESHOLD) {
+    toast('Face motion detected, Please concentrate on the inteerview', {
+        icon: '❕',
+      });
+    }
+  }
+
+  previousLandmarks = currentLandmarks;
+}
+
+async function detectFaceMotions(videoElement) {
+    // const model = facemesh.SupportedModels.MediaPipeFaceMesh;
+    // const detectorConfig = {
+    //   runtime: 'mediapipe', // or 'tfjs'
+    //   solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh',
+    // }
+    // const detector = await facemesh.createDetector(model, detectorConfig);
+    
+    // setInterval(async () => {
+      const predictions = await detector.estimateFaces({ input: videoElement });
+  
+    //   if (predictions.length > 0) {
+    //     analyzeFaceMotions(predictions);
+    //   }
+    // }, 100); // Adjust the interval (in milliseconds) as needed
+  }
+  
 
 
 
@@ -25,14 +77,15 @@ const CallPage = () => {
     const [accept, setAccept] = useState(false)
     const [ended, setEnded] = useState(false)
     const [otherName, setOtherName] = useState('')
-
+    const [sid, setSid] = useState()
     const myVideo = useRef()
     const userVideo = useRef()
     const connectionRef = useRef();
     const socketRef = useRef(null);
     const codeRef = useRef(null);
-    let dclient = {}
 
+    let dclient = {}
+    let interviewer = localStorage.getItem('init')
 
     useEffect(() => {
         let dataStream = null
@@ -43,40 +96,23 @@ const CallPage = () => {
                 setstream(videoStream);
                 myVideo.current.srcObject = videoStream;
                 // initialize socket
-                init()
+                console.log(videoStream);
+                init(videoStream)
 
-                var peer1 = new Peer({ initiator: true, stream: stream })
-           
-
-                peer1.on('signal', data => {
-         
-                    console.log(data, '1');
-                })
-
-         
-                peer1.on('stream', stream => {
-                    // got remote video stream, now let's show it in a video tag
-                    var video = document.querySelector('video')
-
-                    if ('srcObject' in video) {
-                    video.srcObject = stream
-                    } else {
-                    video.src = window.URL.createObjectURL(stream) // for older browsers
-                    }
-
-                    video.play()
-                })
+                
             })
             .catch((error) => {
                 console.log(error);
             });
 
         //socket connecting function
-        const init = async () => {
+        const init = async (videoStream) => {
             socketRef.current = await initSocket();
             socketRef.current.on('connect_error', (err) => handleErrors(err));
             socketRef.current.on('connect_failed', (err) => handleErrors(err));
 
+            // // setSid(socketRef.current.id)
+            // localStorage.setItem('sdf', socketRef.current)
             function handleErrors(e) {
                 console.log('socket error', e);
                 toast.error('Socket connection failed, try again later.');
@@ -88,38 +124,27 @@ const CallPage = () => {
             socketRef.current.emit(ACTIONS.JOIN, {
                 roomId,
                 username: myName,
+                stream: videoStream
             });
+
+
 
             // Listening for joined event
             socketRef.current.on(
                 ACTIONS.JOINED,
-                ({ clients, username, socketId }) => {
+                ({ clients, username, socketId , ustream}) => {
                     if (username !== location.state?.username) {
                         toast.success(`${username} joined the room.`);
-                 
+                        // console.log(ustream);
+                        // userVideo.current.srcObject = ustream;
+                    } else {
+                        localStorage.setItem('sid', socketId)
+                        setSid(socketId)
                     }
-                    localStorage.setItem('sockId', socketId)
+                    // socket
                 }
             );
-            
-            // recv user stream
-            socketRef.current?.on(ACTIONS.RECV_STREAM, ({ username, stream }) => {
-                // setAccept(true)
-                // console.log(`Received stream from ${username}`,stream);
-                // const video = document.getElementById('received-video');
-                // console.log(video);
-                // // userVideo.current?.srcObject = stream
-                // video.srcObject = stream
-                // if (video) {
-                //     if ('srcObject' in video) {
-                //       video.srcObject = stream;
-                //     } else {
-                //       console.error('srcObject is not supported in this browser.');
-                //     }
-                //   } else {
-                //     console.error('Video element with id "received-video" not found.');
-                //   }
-              });
+
 
 
             // Listening for disconnected
@@ -151,6 +176,12 @@ const CallPage = () => {
         
     }, []);
 
+    useEffect(() => {
+        if(myVideo.current) {
+            detectFaceMotions(myVideo.current)
+        }
+    }, [myVideo.current])
+
     function leaveRoom() {
         setEnded(true)
         socketRef.current.destroy();
@@ -161,18 +192,7 @@ const CallPage = () => {
         return <Navigate to="/" />;
     }
 
-    // if(stream==null) alert('Please accept camera permissions prompt')
 
-    const handleSendStream = () => {
-        // const video = document.getElementById('myvid');
-        // console.log('sending stream', video.srcObject);
-
-        // socketRef.current.emit(ACTIONS.SEND_STREAM, {
-        // username:myName,
-        // roomId,
-        // stream:video.srcObject
-        // });
-    };
     
 
     return (
@@ -188,16 +208,16 @@ const CallPage = () => {
                 }
                 </div>
                 <div className='row'>
-                {   accept &&   (
+                {   
+                // accept &&   (
                         <div className='velement'>
                             
                             <video playsInline ref={userVideo} muted autoPlay className='' id='received-video' />
                         </div>
-                    )
+                    // )
                 }
                 </div>
                 <div className='row options'>
-                    {/* <Button onClick={handleSendStream}>Send Stream</Button> */}
 
                     <Button onClick={leaveRoom} className="mt-5">Leave</Button>
                 </div>

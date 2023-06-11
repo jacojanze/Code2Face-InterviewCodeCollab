@@ -3,7 +3,6 @@ import { Image, Form, Button } from 'react-bootstrap'
 import {useNavigate} from 'react-router-dom'
 import ShortUniqueId from 'short-unique-id';
 import toast from 'react-hot-toast'
-import CopyToClipboard from 'react-copy-to-clipboard';
 import copy from 'copy-to-clipboard';
 
 const Home = () => {
@@ -63,8 +62,11 @@ const Home = () => {
             toast.error("Name field is empty")
             return;
         }
-        toast.success('Joining new Call')
         const roomId = sid.length>0?sid:sid1
+        if(sid.length>0) {
+            localStorage.setItem('init', 'true')
+        }
+        toast.success('Joining new Call')
         history(`/call/${roomId}`, {
             state: {
                 username: uname,
