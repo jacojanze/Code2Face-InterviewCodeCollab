@@ -54,7 +54,11 @@ async function detectFaceMotions(videoElement) {
     // const detector = await facemesh.createDetector(model, detectorConfig);
     
     // setInterval(async () => {
-      const predictions = await detector.estimateFaces({ input: videoElement });
+        console.log('ds');
+        const detection = await faceapi.detectSingleFace(videoElement)
+
+      const predictions = await faceapi.detectFaceLandmarksTiny(videoElement);
+      console.log(predictions);
   
     //   if (predictions.length > 0) {
     //     analyzeFaceMotions(predictions);
@@ -88,15 +92,18 @@ const CallPage = () => {
     let interviewer = localStorage.getItem('init')
 
     useEffect(() => {
+        faceapi.loadFaceDetectionModel()
+        faceapi.loadFaceLandmarkTinyModel()
+        // faceapi.loa
         let dataStream = null
         //take camera permission
+
         navigator?.mediaDevices?.getUserMedia({video : true, audio : true})
             .then(videoStream => {
+                myVideo.current.srcObject = videoStream;
                 dataStream= videoStream
                 setstream(videoStream);
-                myVideo.current.srcObject = videoStream;
                 // initialize socket
-                console.log(videoStream);
                 init(videoStream)
 
                 
@@ -178,6 +185,7 @@ const CallPage = () => {
 
     useEffect(() => {
         if(myVideo.current) {
+            // console.log(1);
             detectFaceMotions(myVideo.current)
         }
     }, [myVideo.current])
@@ -209,12 +217,12 @@ const CallPage = () => {
                 </div>
                 <div className='row'>
                 {   
-                // accept &&   (
+                accept &&   (
                         <div className='velement'>
                             
                             <video playsInline ref={userVideo} muted autoPlay className='' id='received-video' />
                         </div>
-                    // )
+                    )
                 }
                 </div>
                 <div className='row options'>
