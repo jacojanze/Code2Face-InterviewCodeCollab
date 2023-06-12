@@ -119,6 +119,7 @@ const CallPage = () => {
         //socket connecting function
         const init = async (videoStream) => {
             socketRef.current = await initSocket();
+            console.log(socketRef);
             socketRef.current.on('connect_error', (err) => handleErrors(err));
             socketRef.current.on('connect_failed', (err) => handleErrors(err));
 
@@ -179,7 +180,7 @@ const CallPage = () => {
     useEffect(() => {
         if(myVideo.current ) {
             // console.log(isMounted);
-            // detectFaceMotions()
+            detectFaceMotions()
         }
     }, [myVideo])
 
