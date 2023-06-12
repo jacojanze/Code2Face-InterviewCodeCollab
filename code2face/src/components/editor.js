@@ -1,7 +1,7 @@
 import React, {useEffect, useState, useRef, useMemo} from 'react'
 import { useLocation } from 'react-router-dom';
 // codemirror components
-import { UseCodeMirror, useCodeMirror } from '@uiw/react-codemirror';
+import { useCodeMirror } from '@uiw/react-codemirror';
 
 // import languages 
 import { javascript } from '@codemirror/lang-javascript';

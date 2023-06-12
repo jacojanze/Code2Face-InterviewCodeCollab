@@ -53,10 +53,13 @@ a{
 
 /* error page  */
 .errorpage{
-    margin: 3em;
+    margin: auto;
+    margin-top: 3em;
+    text-align: center;
 }
 
 .errorpage span {
+    margin: auto;
     font-size: 24px;
     color: rgb(219, 39, 39);
 }
@@ -72,7 +75,8 @@ a{
 }
 
 .vcont{
-    margin: auto;
+    margin: auto ;
+    /* margin-right: 10px; */
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
@@ -96,4 +100,6 @@ video {
     /* background-color: antiquewhite; */
     width:50vw;
     height: 80vh;
+    margin: auto;
+    margin-right: 0 !important;
 }

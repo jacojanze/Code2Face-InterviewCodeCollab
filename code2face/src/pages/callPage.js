@@ -7,6 +7,7 @@ import ACTIONS from '../Actions';
 import Peer from 'simple-peer';
 import { Button } from "react-bootstrap";
 import * as faceapi from 'face-api.js'
+import Chat from "../components/chat";
 
 const SocketContext = createContext();
 
@@ -15,11 +16,13 @@ const CallPage = () => {
     const location = useLocation();
     const history = useNavigate();
     const myName = location.state?.username
+    let interviewer = localStorage.getItem('init')
     const MOTION_THRESHOLD = 15;
     var userMoves =0 ;
     let isMounted = false;
     var previousLandmarks = null;
     var warned = false;
+    let refresh = 1;
 
     const [clients, setClients] = useState([]);
     const { roomId } = useParams();
@@ -33,15 +36,12 @@ const CallPage = () => {
     const connectionRef = useRef();
     const socketRef = useRef(null);
     const codeRef = useRef(null);
-    let interviewer = localStorage.getItem('init')
-
+    
     
 
-    function analyzeFaceMotions(landmarks) {
-        if(!landmarks) return
-        
+    function analyzeFaceMotions(landmarks) {       
         const currentLandmarks = landmarks._positions;
-      
+
         if (previousLandmarks && currentLandmarks.length == 68) {
             let totalMotion = 0, averageMotion =0 ;
             for(let i=0;i<68;i++) {
@@ -49,8 +49,7 @@ const CallPage = () => {
                 const dy = currentLandmarks[i]._y - previousLandmarks[i]._y;
                 const distance = Math.sqrt(dx*dx + dy*dy)
                 totalMotion+= distance
-            }
-            
+            }            
             averageMotion = totalMotion / 68;
             // console.log(averageMotion);
             if (averageMotion > MOTION_THRESHOLD) {
@@ -64,6 +63,7 @@ const CallPage = () => {
     }
 
     async function detectFaceMotions() {
+        refresh = refresh%3;
         setInterval(async()=> {
             // if(warned) {
             //     leaveRoom();
@@ -82,7 +82,7 @@ const CallPage = () => {
                 userMoves++;
             }
             else if(detections?.length > 1) {
-                toast.error("More than 1 person spotted in camera")
+                toast.error(`${detections.length} persons spotted in camera`)
                 userMoves++;
             }
             else if(detections && detections.length==1){
@@ -92,7 +92,8 @@ const CallPage = () => {
                 toast.error(" Please face the webcam!")
             }
 
-        }, 2200)
+        }, 1200 * refresh)
+        refresh++;
         
     }
 
@@ -178,7 +179,7 @@ const CallPage = () => {
     useEffect(() => {
         if(myVideo.current ) {
             // console.log(isMounted);
-            detectFaceMotions()
+            // detectFaceMotions()
         }
     }, [myVideo])
 
@@ -227,7 +228,10 @@ const CallPage = () => {
                 </div>
                 <div className='row options'>
 
-                    <Button onClick={leaveRoom} className="mt-5">Leave</Button>
+                    <Button onClick={leaveRoom} className="mt-5" style={{width:'120px', margin:'auto'}}>Leave</Button>
+                </div>
+                <div className="row">
+                    <Chat />
                 </div>
                 
             </div>
