@@ -110,10 +110,10 @@ five`);
         <div className='editorcomponent'>
             <span>Theme</span>
             <select onChange={handleThemeChange}>
+                <option default value={"githubDark"}>githubDark</option>
                 <option value={"eclipse"}>eclipse</option>
                 <option value={"xcodeLight"}>xcodeLight</option>
                 <option value={"xcodeDark"}>xcodeDark</option>
-                <option value={"githubDark"}>githubDark</option>
                 <option value={"solarizedDark"}>solarizedDark</option>
                 <option value={"abcdef"}>abcdef</option>
             </select>

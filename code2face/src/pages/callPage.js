@@ -4,77 +4,23 @@ import toast from 'react-hot-toast';
 import { useLocation, useNavigate, useParams, Navigate } from 'react-router-dom';
 import Editor from '../components/editor';
 import ACTIONS from '../Actions';
-import {io} from 'socket.io-client'
 import Peer from 'simple-peer';
 import { Button } from "react-bootstrap";
-
 import * as faceapi from 'face-api.js'
-import * as tf from '@tensorflow/tfjs';
-import * as facemesh from '@tensorflow-models/face-landmarks-detection';
-
 
 const SocketContext = createContext();
 
-const socket = io('http://172.19.19.204:3007');
-
-const MOTION_THRESHOLD = 10;
-
-let previousLandmarks = null;
-
-function analyzeFaceMotions(predictions) {
-  const currentLandmarks = predictions[0].scaledMesh;
-
-  if (previousLandmarks) {
-    let totalMotion = 0;
-    for (let i = 0; i < currentLandmarks.length; i++) {
-      const dx = currentLandmarks[i][0] - previousLandmarks[i][0];
-      const dy = currentLandmarks[i][1] - previousLandmarks[i][1];
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      totalMotion += distance;
-    }
-
-    const averageMotion = totalMotion / currentLandmarks.length;
-
-    if (averageMotion > MOTION_THRESHOLD) {
-    toast('Face motion detected, Please concentrate on the inteerview', {
-        icon: '❕',
-      });
-    }
-  }
-
-  previousLandmarks = currentLandmarks;
-}
-
-async function detectFaceMotions(videoElement) {
-    // const model = facemesh.SupportedModels.MediaPipeFaceMesh;
-    // const detectorConfig = {
-    //   runtime: 'mediapipe', // or 'tfjs'
-    //   solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh',
-    // }
-    // const detector = await facemesh.createDetector(model, detectorConfig);
-    
-    // setInterval(async () => {
-        console.log('ds');
-        const detection = await faceapi.detectSingleFace(videoElement)
-
-      const predictions = await faceapi.detectFaceLandmarksTiny(videoElement);
-      console.log(predictions);
-  
-    //   if (predictions.length > 0) {
-    //     analyzeFaceMotions(predictions);
-    //   }
-    // }, 100); // Adjust the interval (in milliseconds) as needed
-  }
-  
-
-
 
 const CallPage = () => {
-    
     const location = useLocation();
     const history = useNavigate();
     const myName = location.state?.username
-    
+    const MOTION_THRESHOLD = 15;
+    var userMoves =0 ;
+    let isMounted = false;
+    var previousLandmarks = null;
+    var warned = false;
+
     const [clients, setClients] = useState([]);
     const { roomId } = useParams();
     const [stream, setstream] = useState()
@@ -87,22 +33,78 @@ const CallPage = () => {
     const connectionRef = useRef();
     const socketRef = useRef(null);
     const codeRef = useRef(null);
-
-    let dclient = {}
     let interviewer = localStorage.getItem('init')
 
+    
+
+    function analyzeFaceMotions(landmarks) {
+        if(!landmarks) return
+        
+        const currentLandmarks = landmarks._positions;
+      
+        if (previousLandmarks && currentLandmarks.length == 68) {
+            let totalMotion = 0, averageMotion =0 ;
+            for(let i=0;i<68;i++) {
+                const dx=currentLandmarks[i]._x - previousLandmarks[i]._x;
+                const dy = currentLandmarks[i]._y - previousLandmarks[i]._y;
+                const distance = Math.sqrt(dx*dx + dy*dy)
+                totalMotion+= distance
+            }
+            
+            averageMotion = totalMotion / 68;
+            // console.log(averageMotion);
+            if (averageMotion > MOTION_THRESHOLD) {
+                toast('Face motion detected, Please concentrate on the interview', {
+                    icon: '❕',
+                });
+                userMoves++;
+            }
+        } 
+        previousLandmarks = currentLandmarks;
+    }
+
+    async function detectFaceMotions() {
+        setInterval(async()=> {
+            // if(warned) {
+            //     leaveRoom();
+            //     Location.reload()
+            // }
+            if(userMoves > 200) {
+                toast.error("Warning! Session will be ended if movement is observed again.")
+                warned=true;
+            }
+            const detections  = await  faceapi.detectAllFaces(myVideo.current, 
+                new faceapi.TinyFaceDetectorOptions())
+                    .withFaceLandmarks()
+            
+            if(myVideo.current && detections.length==0) {
+                toast.error("Please sit in a well lit room and face the Webcam!")
+                userMoves++;
+            }
+            else if(detections?.length > 1) {
+                toast.error("More than 1 person spotted in camera")
+                userMoves++;
+            }
+            else if(detections && detections.length==1){
+                analyzeFaceMotions(detections[0].landmarks)
+            } else {
+                console.log(detections);
+                toast.error(" Please face the webcam!")
+            }
+
+        }, 2200)
+        
+    }
+
     useEffect(() => {
-        faceapi.loadFaceDetectionModel()
-        faceapi.loadFaceLandmarkTinyModel()
-        // faceapi.loa
+        isMounted = true;
         let dataStream = null
         //take camera permission
-
         navigator?.mediaDevices?.getUserMedia({video : true, audio : true})
             .then(videoStream => {
-                myVideo.current.srcObject = videoStream;
                 dataStream= videoStream
                 setstream(videoStream);
+                myVideo.current.srcObject = videoStream;
                 // initialize socket
                 init(videoStream)
 
@@ -111,31 +113,26 @@ const CallPage = () => {
             .catch((error) => {
                 console.log(error);
             });
-
+        //load faceapi Models
+        loadModels()
         //socket connecting function
         const init = async (videoStream) => {
             socketRef.current = await initSocket();
             socketRef.current.on('connect_error', (err) => handleErrors(err));
             socketRef.current.on('connect_failed', (err) => handleErrors(err));
 
-            // // setSid(socketRef.current.id)
-            // localStorage.setItem('sdf', socketRef.current)
             function handleErrors(e) {
                 console.log('socket error', e);
                 toast.error('Socket connection failed, try again later.');
                 history('/');
                 return
             }
-
             //Send join info
             socketRef.current.emit(ACTIONS.JOIN, {
                 roomId,
                 username: myName,
                 stream: videoStream
             });
-
-
-
             // Listening for joined event
             socketRef.current.on(
                 ACTIONS.JOINED,
@@ -151,9 +148,6 @@ const CallPage = () => {
                     // socket
                 }
             );
-
-
-
             // Listening for disconnected
             socketRef.current.on(
                 ACTIONS.DISCONNECTED,
@@ -167,41 +161,47 @@ const CallPage = () => {
                 }
             );
         };
-
-        
         // Clean up function to remove camera permissions ans end socket
         return () => {
+            isMounted = false
             if (dataStream) {
                 const tracks = dataStream.getTracks();
                 tracks.forEach((track) => track.stop());
             }
+            // myVideo.current = null
             socketRef.current?.off(ACTIONS.JOINED);
             socketRef.current?.off(ACTIONS.DISCONNECTED);
             socketRef.current?.disconnect();
         };
-
-        
     }, []);
 
     useEffect(() => {
-        if(myVideo.current) {
-            // console.log(1);
-            detectFaceMotions(myVideo.current)
+        if(myVideo.current ) {
+            // console.log(isMounted);
+            detectFaceMotions()
         }
-    }, [myVideo.current])
+    }, [myVideo])
+
+    const loadModels =  () => {
+        Promise.all([
+            faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
+            faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
+            faceapi.loadFaceLandmarkTinyModel("/models")
+        ]).then(() => {
+            console.log('Models Loaded');
+        })
+    }
 
     function leaveRoom() {
         setEnded(true)
-        socketRef.current.destroy();
+        // myVideo?.current.clear();
+        socketRef?.current.destroy();
         history('/');
     }
 
     if (!location.state) {
         return <Navigate to="/" />;
     }
-
-
-    
 
     return (
         <div className='callpage'>
@@ -216,14 +216,14 @@ const CallPage = () => {
                 }
                 </div>
                 <div className='row'>
-                {   
+                {/* {   
                 accept &&   (
                         <div className='velement'>
                             
                             <video playsInline ref={userVideo} muted autoPlay className='' id='received-video' />
                         </div>
                     )
-                }
+                } */}
                 </div>
                 <div className='row options'>
 

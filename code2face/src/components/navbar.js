@@ -48,8 +48,8 @@ const Navbar = () => {
 			{/* <div className="logo" ><h3 href="/">Code2Face</h3></div> */}
             <NavbarBrand className="logo">
                 <Link to="/">
-                    {/* Code2Face */}
-                    Test
+                    Code2Face
+                    {/* Test */}
                 </Link>
             </NavbarBrand>
 			<div className="navlinks">{renderList()}</div>
