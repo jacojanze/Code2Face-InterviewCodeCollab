@@ -19,22 +19,25 @@ const CallPage = () => {
     let interviewer = localStorage.getItem('init')
     const MOTION_THRESHOLD = 15;
     var userMoves =0 ;
-    let isMounted = false;
+    let isMounted = true;
     var previousLandmarks = null;
     var warned = false;
+    let dataStream = null
     let refresh = 1;
-
+    const userPeerIdMap = new Map()
+    const idName = new Map()
+    const videoAdded = new Map()
     const [clients, setClients] = useState([]);
     const { roomId } = useParams();
     const [stream, setstream] = useState()
     const [accept, setAccept] = useState(false)
     const [ended, setEnded] = useState(false)
-    const [otherName, setOtherName] = useState('')
-    const [sid, setSid] = useState()
+    const [mySocketID, setmySocketID] = useState(null)
+    const [myPeerId, setmyPeerId] = useState(null)
+
     const myVideo = useRef()
     const socketRef = useRef(null);
     const codeRef = useRef(null);
-    const [mySocketID, setmySocketID] = useState(null)
     
     
 
@@ -69,7 +72,7 @@ const CallPage = () => {
             //     Location.reload()
             // }
             if(userMoves > 200) {
-                toast.error("Warning! Session will be ended if movement is observed again.")
+                toast.error("Warning! Interviewer will be notified if movement is observed again.")
                 warned=true;
             }
             const detections  = await  faceapi.detectAllFaces(myVideo.current, 
@@ -98,7 +101,7 @@ const CallPage = () => {
 
     useEffect(() => {
         isMounted = true;
-        let dataStream = null
+
         //take camera permission
         navigator?.mediaDevices?.getUserMedia({video : true, audio : true})
             .then(videoStream => {
@@ -106,21 +109,21 @@ const CallPage = () => {
                 setstream(videoStream);
                 myVideo.current.srcObject = videoStream;
                 // initialize socket
-                // console.log(myVideo);
                 init(videoStream)
-
-                
             })
             .catch((error) => {
                 console.log(error);
+                alert('Camera permissions nedded to proceed with the Call')
             });
+
+
         //load faceapi Models
         loadModels()
         
         //socket connecting function
         const init = async (videoStream) => {
             socketRef.current = await initSocket();
-            // console.log(socketRef);
+             
             socketRef.current.on('connect_error', (err) => handleErrors(err));
             socketRef.current.on('connect_failed', (err) => handleErrors(err));
 
@@ -131,51 +134,55 @@ const CallPage = () => {
                 return
             }
             
-            socketRef.current.on('yourID', data => {
-                setmySocketID(data.id)
-            })
-
-            // const peer = new Peer(mySocketID, {host:'peerjs-server.herokuapp.com', secure:true, port:443})
-            const peer = new Peer(mySocketID)
-            // console.log(peer);
+            // PeerJS functionality starts 
+            const peer = new Peer()
+            
+            peer.on('open', function(id) {
+                setmyPeerId(id)
+                //Send joining info
+                socketRef.current.emit(ACTIONS.JOIN, {
+                    roomId,
+                    username: myName,
+                    peerId:id
+                });
+            });
 
             peer.on("connection", (conn) => {
-                console.log(conn);
-                conn.on("data", (data) => {
-                    // Will print 'hi!'
-                    console.log(data);
-                });
-                conn.on("open", () => {
-                    conn.send("hello!");
-                });
+                conn.on('data' , uname => {
+                    idName[conn.peer] = uname
+                })
             });
 
-            //Send join info
-            socketRef.current.emit(ACTIONS.JOIN, {
-                roomId,
-                username: myName,
-            });
+            peer.on('call', (call) => {
+                console.log('received call');
+                call.answer(videoStream)
+                call.on('stream', (remoteStream) => {
+                    addVideo(remoteStream, call.peer)
+                })
+            })
+
             // Listening for joined event
             socketRef.current.on(
                 ACTIONS.JOINED,
-                ({ clients, username, socketId }) => {
+                ({ clients, username, socketId, peerId }) => {
                     if (username !== location.state?.username) {
-                        const conn = peer.connect(socketId)
-                        console.log(peer, conn);
-                        conn.on("open", () => {
-                            conn.send('hi from ', mySocketID)
-                        })
-                        // console.log(username, 'joined!');
-                        toast.success(`${username} joined the room.`);
 
-                    } else {
-                        // console.log('me mine');
-                        localStorage.setItem('sid', socketId)
-                        setSid(socketId)
-                    }
-                    // socket
+                        var conn = peer.connect(peerId)
+                        idName[peerId] = username
+                        userPeerIdMap[username] = conn
+                        conn.on("open", () => {
+                            conn.send(myName)
+                            console.log('called');
+                            var call = peer.call(peerId, videoStream)
+                            call.on('stream', (remoteStream) => {
+                                addVideo(remoteStream, peerId)
+                            })
+                        })
+                        toast.success(`${username} joined the room.`);
+                    } 
                 }
             );
+
             // Listening for disconnected
             socketRef.current.on(
                 ACTIONS.DISCONNECTED,
@@ -205,10 +212,35 @@ const CallPage = () => {
 
     useEffect(() => {
         if(myVideo.current ) {
-            // console.log(isMounted);
-            // detectFaceMotions()
+            // console.log('detecting');
+            detectFaceMotions()
         }
-    }, [myVideo])
+    }, [myVideo.current])
+    
+    function addVideo(stream, peerID) {
+        if(videoAdded.has(peerID)) return
+        videoAdded[peerID] =true
+        const row = document.createElement('div')
+        row.setAttribute('className', 'row')
+
+        const video = document.createElement('video')
+        video.srcObject=stream;
+        video.muted = true
+        video.addEventListener('loadedmetadata', () => {
+            video.play()
+        })
+
+        const span = document.createElement('span')
+        span.innerText = idName[peerID]
+        span.setAttribute('class', 'tagName')
+
+        row.append(video)
+        row.append(span)
+
+        const peerDiv  = document.getElementById('peerDiv')
+        peerDiv.insertBefore(row, peerDiv.children[0])
+
+    }
 
     const loadModels =  () => {
         Promise.all([
@@ -217,12 +249,14 @@ const CallPage = () => {
             faceapi.loadFaceLandmarkTinyModel("/models")
         ]).then(() => {
             // console.log('Models Loaded');
+        }).catch(err => {
+            console.log('FaceAPI modules loading error', err);
         })
+
     }
 
     function leaveRoom() {
         setEnded(true)
-        // myVideo?.current.clear();
         socketRef?.current.destroy();
         history('/');
     }
@@ -231,32 +265,6 @@ const CallPage = () => {
         return <Navigate to="/" />;
     }
 
-    function addVideo(stream, username = 'user') {
-        // // console.log(2);
-        // if(bool) {
-        //     const video  =document.getElementById('myVid')
-        //     video.muted=true;
-        //     video.srcObject=stream;
-        //     video.addEventListener('loadedmetadata', () => {
-        //         video.play()
-        //     })
-        // } else {
-            const row = document.createElement('div')
-            row.setAttribute('className', 'row')
-            const video = document.createElement('video')
-            video.srcObject=stream;
-            video.addEventListener('loadedmetadata', () => {
-                video.play()
-            })
-            const span = document.createElement('span')
-            span.innerText = username
-            span.setAttribute('className', 'tagName')
-            row.append(video)
-            row.append(span)
-            const peerDiv  = document.getElementById('peerDiv')
-            peerDiv.insertBefore(row, peerDiv.children[0])
-        // }
-    }
 
     return (
         <div className='callpage'>

@@ -46,6 +46,7 @@ const Home = () => {
         setFclick(true)
         let code  = Suid(10);
         setSid(code)
+        setSid1(code)
         if (copy(code))
             toast.success('Session ID copied')
         else toast.error('Cannot copy to clipboard')
