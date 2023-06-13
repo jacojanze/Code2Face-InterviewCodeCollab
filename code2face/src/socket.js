@@ -7,6 +7,6 @@ export const initSocket = async () => {
         timeout: 10000,
         transports: ['websocket'],
     };
-    console.log('conecting to socket');
-    return io(process.env.REACT_APP_BACKEND_URI, options);
+    // console.log('conecting to socket');
+    return io('http://localhost:3007', options);
 };

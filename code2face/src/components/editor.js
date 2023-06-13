@@ -21,6 +21,8 @@ const extensions = [javascript()]
 
 const Editor = ({ socketRef, roomId, onCodeChange }) => {
     const history = useLocation()
+    const location = useLocation()
+    const uname = location?.state?.username
     const [theme, setTheme] = useState(githubDark);
     const [code, setCode] = useState(`one
 two

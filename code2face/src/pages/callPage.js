@@ -4,11 +4,11 @@ import toast from 'react-hot-toast';
 import { useLocation, useNavigate, useParams, Navigate } from 'react-router-dom';
 import Editor from '../components/editor';
 import ACTIONS from '../Actions';
-import Peer from 'simple-peer';
+import {Peer} from 'peerjs'
 import { Button } from "react-bootstrap";
 import * as faceapi from 'face-api.js'
 import Chat from "../components/chat";
-
+import "../styles/callpage.css"
 const SocketContext = createContext();
 
 
@@ -32,10 +32,9 @@ const CallPage = () => {
     const [otherName, setOtherName] = useState('')
     const [sid, setSid] = useState()
     const myVideo = useRef()
-    const userVideo = useRef()
-    const connectionRef = useRef();
     const socketRef = useRef(null);
     const codeRef = useRef(null);
+    const [mySocketID, setmySocketID] = useState(null)
     
     
 
@@ -107,6 +106,7 @@ const CallPage = () => {
                 setstream(videoStream);
                 myVideo.current.srcObject = videoStream;
                 // initialize socket
+                // console.log(myVideo);
                 init(videoStream)
 
                 
@@ -116,10 +116,11 @@ const CallPage = () => {
             });
         //load faceapi Models
         loadModels()
+        
         //socket connecting function
         const init = async (videoStream) => {
             socketRef.current = await initSocket();
-            console.log(socketRef);
+            // console.log(socketRef);
             socketRef.current.on('connect_error', (err) => handleErrors(err));
             socketRef.current.on('connect_failed', (err) => handleErrors(err));
 
@@ -129,21 +130,46 @@ const CallPage = () => {
                 history('/');
                 return
             }
+            
+            socketRef.current.on('yourID', data => {
+                setmySocketID(data.id)
+            })
+
+            // const peer = new Peer(mySocketID, {host:'peerjs-server.herokuapp.com', secure:true, port:443})
+            const peer = new Peer(mySocketID)
+            // console.log(peer);
+
+            peer.on("connection", (conn) => {
+                console.log(conn);
+                conn.on("data", (data) => {
+                    // Will print 'hi!'
+                    console.log(data);
+                });
+                conn.on("open", () => {
+                    conn.send("hello!");
+                });
+            });
+
             //Send join info
             socketRef.current.emit(ACTIONS.JOIN, {
                 roomId,
                 username: myName,
-                stream: videoStream
             });
             // Listening for joined event
             socketRef.current.on(
                 ACTIONS.JOINED,
-                ({ clients, username, socketId , ustream}) => {
+                ({ clients, username, socketId }) => {
                     if (username !== location.state?.username) {
+                        const conn = peer.connect(socketId)
+                        console.log(peer, conn);
+                        conn.on("open", () => {
+                            conn.send('hi from ', mySocketID)
+                        })
+                        // console.log(username, 'joined!');
                         toast.success(`${username} joined the room.`);
-                        // console.log(ustream);
-                        // userVideo.current.srcObject = ustream;
+
                     } else {
+                        // console.log('me mine');
                         localStorage.setItem('sid', socketId)
                         setSid(socketId)
                     }
@@ -180,7 +206,7 @@ const CallPage = () => {
     useEffect(() => {
         if(myVideo.current ) {
             // console.log(isMounted);
-            detectFaceMotions()
+            // detectFaceMotions()
         }
     }, [myVideo])
 
@@ -190,7 +216,7 @@ const CallPage = () => {
             faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
             faceapi.loadFaceLandmarkTinyModel("/models")
         ]).then(() => {
-            console.log('Models Loaded');
+            // console.log('Models Loaded');
         })
     }
 
@@ -205,14 +231,42 @@ const CallPage = () => {
         return <Navigate to="/" />;
     }
 
+    function addVideo(stream, username = 'user') {
+        // // console.log(2);
+        // if(bool) {
+        //     const video  =document.getElementById('myVid')
+        //     video.muted=true;
+        //     video.srcObject=stream;
+        //     video.addEventListener('loadedmetadata', () => {
+        //         video.play()
+        //     })
+        // } else {
+            const row = document.createElement('div')
+            row.setAttribute('className', 'row')
+            const video = document.createElement('video')
+            video.srcObject=stream;
+            video.addEventListener('loadedmetadata', () => {
+                video.play()
+            })
+            const span = document.createElement('span')
+            span.innerText = username
+            span.setAttribute('className', 'tagName')
+            row.append(video)
+            row.append(span)
+            const peerDiv  = document.getElementById('peerDiv')
+            peerDiv.insertBefore(row, peerDiv.children[0])
+        // }
+    }
+
     return (
         <div className='callpage'>
             <div className='vcont' id='peerDiv'>
-                <div className='row'>
+                <div className='row' id="myrow">
                     {  stream && (
                         <div className='velement'>
 
                             <video playsInline ref={myVideo} muted autoPlay className='' id="myvid" />
+                            <span className="tagName">{myName}</span>
                         </div>
                     )
                 }

@@ -1,0 +1,46 @@
+.callpage{
+    margin: 1em 5em;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    /* text-align: center; */
+}
+
+.vcont{
+    margin: auto ;
+    /* margin-right: 10px; */
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+.velement {
+    /* padding: 2px; */
+    margin: auto;
+}
+
+video {
+    width: 25vw;
+    /* height: 17vw; */
+    border-radius: 1em;
+    border: solid 1px grey;
+    margin: auto;
+}
+
+.tagName{
+    font-weight: 600;
+    background-color: rgba(240, 248, 255, 0.685);
+    border-radius: 2px;
+    padding: 2px;
+    
+    margin-left: -15vw;
+}
+
+
+.ECcont {
+    /* background-color: antiquewhite; */
+    width:50vw;
+    height: 80vh;
+    margin: auto;
+    margin-right: 0 !important;
+}
