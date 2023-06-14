@@ -9,5 +9,6 @@ export const initSocket = async () => {
     };
     // console.log('conecting to socket');
     // return io('http://192.168.209.214:3007', options);
-    return io('http://localhost:3007',options);
+    // return io('http://localhost:3007',options);
+    return io(process.env.REACT_APP_BACKEND_URI, options);
 };

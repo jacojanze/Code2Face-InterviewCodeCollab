@@ -10,7 +10,7 @@ import Login from './components/Login';
 import Home from './pages/home';
 import CallPage from './pages/callPage';
 import NotFound from './pages/NotFound';
-import Testing from './pages/testing';
+// import Testing from './pages/testing';
 import { Toaster } from 'react-hot-toast';
 
 
@@ -36,7 +36,7 @@ function App() {
                                 <Route exact path="/register" element={<Register/>} />
                                 <Route exact path="/login" element={<Login />} />
                                 <Route exact path="/call/:roomId" element={<CallPage/>} />
-                                <Route exact path='/testing' element={<Testing/>} />
+                                {/* <Route exact path='/testing' element={<Testing/>} /> */}
                                 <Route path="*" element={<NotFound/>} />
                         </Routes>
                     </div>
