@@ -147,17 +147,17 @@ const CallPage = () => {
                     peerId:id
                 });
             });
-            // 
+
             peer.on("connection", (conn) => {
                 connects.push(conn)
                 conn.on('data' , uname => {
                     idName[conn.peer] = uname
                 })
             });
-            // receive call
+
             peer.on('call', (call) => {
                 console.log('received call');
-                call.answer(videoStream)//reply with stream
+                call.answer(videoStream)
                 call.on('stream', (remoteStream) => {
                     addVideo(remoteStream, call.peer)
                 })
@@ -168,7 +168,7 @@ const CallPage = () => {
                 ACTIONS.JOINED,
                 ({ clients, username, socketId, peerId }) => {
                     if (username !== location.state?.username) {
-                        // connect with new peer
+
                         var conn = peer.connect(peerId)
                         idName[peerId] = username
                         userPeerIdMap[username] = conn
@@ -176,7 +176,6 @@ const CallPage = () => {
                         conn.on("open", () => {
                             conn.send(myName)
                             console.log('called');
-                            // call the new peer
                             var call = peer.call(peerId, videoStream)
                             call.on('stream', (remoteStream) => {
                                 addVideo(remoteStream, peerId)
