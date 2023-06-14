@@ -19,11 +19,11 @@ const CallPage = () => {
     let interviewer = localStorage.getItem('init')
     const MOTION_THRESHOLD = 15;
     var userMoves =0 ;
-    let isMounted = true;
     var previousLandmarks = null;
     var warned = false;
     let dataStream = null
     let refresh = 1;
+    var connects = [];
     const userPeerIdMap = new Map()
     const idName = new Map()
     const videoAdded = new Map()
@@ -34,10 +34,11 @@ const CallPage = () => {
     const [ended, setEnded] = useState(false)
     const [mySocketID, setmySocketID] = useState(null)
     const [myPeerId, setmyPeerId] = useState(null)
-
+    var peer = null
     const myVideo = useRef()
     const socketRef = useRef(null);
     const codeRef = useRef(null);
+    let isMounted = useRef(false);
     
     
 
@@ -113,7 +114,7 @@ const CallPage = () => {
             })
             .catch((error) => {
                 console.log(error);
-                alert('Camera permissions nedded to proceed with the Call')
+                // alert('Camera permissions nedded to proceed with the Call')
             });
 
 
@@ -135,7 +136,7 @@ const CallPage = () => {
             }
             
             // PeerJS functionality starts 
-            const peer = new Peer()
+            peer = new Peer()
             // once peer created join room
             peer.on('open', function(id) {
                 setmyPeerId(id)
@@ -148,6 +149,7 @@ const CallPage = () => {
             });
             // 
             peer.on("connection", (conn) => {
+                connects.push(conn)
                 conn.on('data' , uname => {
                     idName[conn.peer] = uname
                 })
@@ -170,7 +172,7 @@ const CallPage = () => {
                         var conn = peer.connect(peerId)
                         idName[peerId] = username
                         userPeerIdMap[username] = conn
-
+                        connects.push(conn)
                         conn.on("open", () => {
                             conn.send(myName)
                             console.log('called');
@@ -213,7 +215,7 @@ const CallPage = () => {
     }, []);
 
     useEffect(() => {
-        if(myVideo.current ) {
+        if(myVideo.current  && isMounted) {
             // console.log('detecting');
             detectFaceMotions()
         }
@@ -260,6 +262,14 @@ const CallPage = () => {
     function leaveRoom() {
         setEnded(true)
         socketRef?.current.destroy();
+        if (dataStream) {
+            const tracks = dataStream.getTracks();
+            tracks.forEach((track) => track.stop());
+        }
+        // for(let con of connects) {
+        //     con.close()
+        // }
+        peer?.close()
         history('/');
     }
 
@@ -296,7 +306,10 @@ const CallPage = () => {
                     <Button onClick={leaveRoom} className="mt-5" style={{width:'120px', margin:'auto'}}>Leave</Button>
                 </div>
                 <div className="row">
-                    <Chat />
+                    <Chat 
+                        socketRef={socketRef}
+                        roomId={roomId}
+                    />
                 </div>
                 
             </div>
@@ -311,9 +324,7 @@ const CallPage = () => {
                         }
                     />
                 </div>
-                <div className='ccont' >
-
-                </div>
+                
             </div>
         </div>
     )

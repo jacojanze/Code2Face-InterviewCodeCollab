@@ -14,6 +14,7 @@ import { solarizedDark } from '@uiw/codemirror-theme-solarized';
 import ACTIONS from '../Actions';
 
 import "../styles/editor.css"
+import { Button } from 'react-bootstrap';
 
 
 const extensions = [javascript()]
@@ -106,7 +107,22 @@ five`);
 
         })
 
+        socketRef?.current.on(ACTIONS.SYNC_CODE, () => {
+            socketRef.current.emit(ACTIONS.CODE_CHANGE, {
+                roomId,
+                code,
+            })
+        })
+
     },[editorRef.current,socketRef.current])
+
+    const updateCode = (e) => {
+        e.preventDefault()
+        socketRef.current.emit(ACTIONS.CODE_CHANGE, {
+            roomId,
+            code,
+        })
+    }
 
     return (
         <div className='editorcomponent'>
@@ -120,6 +136,7 @@ five`);
                 <option value={"abcdef"}>abcdef</option>
             </select>
             <div ref={editorRef} className='ide' ></div>
+            <Button className='mt-3' onChange={updateCode} >Update Code</Button>
         </div>
     );
 }

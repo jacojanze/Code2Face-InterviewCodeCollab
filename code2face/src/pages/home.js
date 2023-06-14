@@ -20,6 +20,7 @@ const Home = () => {
         value:'',
         copied:false
     })
+    const [interviewer, setInterviewer] = useState(true)
   
 
     const handleChange1 = (e) => {
@@ -52,6 +53,11 @@ const Home = () => {
         else toast.error('Cannot copy to clipboard')
     }
 
+    const handleSwitch = (e) => {
+        setInterviewer(!interviewer)
+        console.log(interviewer);
+    }
+
     const handleJoin = async ()=> {
         if(sid.length==0 && sid1.length==0) {
             toast('Please generate or fill the Session ID', {
@@ -71,6 +77,7 @@ const Home = () => {
         history(`/call/${roomId}`, {
             state: {
                 username: uname,
+                interviewer,
             },
         });
     }
@@ -84,21 +91,8 @@ const Home = () => {
                 <div className='central'>
                     <div className='d-flex flex-column'>
                         <div className='jcontent'>
-                            <h4>Welcome to Code2Face</h4>
+                            <h3>Welcome to Code2Face</h3>
 
-                            <Form>
-                                <Form.Group className="mmb fin d-flex" controlId="">
-                                    
-                                    <Form.Control 
-                                        type="text" 
-                                        placeholder="Enter your good Name" 
-                       
-                                        name="uname"
-                                        onChange={handleNameChange}
-                                        value={uname}
-                                    />
-                                </Form.Group>
-                            </Form>
                         </div>
                         <div className='jcontent mt4'>
                             <h4>Start a New Session</h4>
@@ -139,6 +133,33 @@ const Home = () => {
                                         
                                     />
                                     <Form.Text>{validText}</Form.Text>
+                                </Form.Group>
+                                
+                            </Form>
+
+                        </div>
+                        <div className='jcontent'>
+
+                            <Form>
+                                <Form.Group className="mmb fin d-flex" controlId="">
+                                    <Form.Control 
+                                        type="text" 
+                                        placeholder="Enter your good Name" 
+                       
+                                        name="uname"
+                                        onChange={handleNameChange}
+                                        value={uname}
+                                    />
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Check
+                                        type="switch"
+                                        id="custom-switch"
+                                        label="I am Interviewer"
+                                        value={interviewer}
+                                        name='interviewer'
+                                        onChange={handleSwitch}
+                                    />
                                 </Form.Group>
                                 <Form.Group >
                                     <Button onClick={handleJoin}>Join Call</Button>

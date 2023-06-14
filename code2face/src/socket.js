@@ -8,5 +8,6 @@ export const initSocket = async () => {
         transports: ['websocket'],
     };
     // console.log('conecting to socket');
-    return io('http://192.168.209.214:3007', options);
+    // return io('http://192.168.209.214:3007', options);
+    return io('http://localhost:3007',options);
 };
