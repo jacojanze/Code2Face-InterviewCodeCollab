@@ -216,12 +216,13 @@ const CallPage = () => {
     useEffect(() => {
         if(myVideo.current  && isMounted) {
             // console.log('detecting');
-            detectFaceMotions()
+            // detectFaceMotions()
         }
     }, [myVideo.current])
     
     function addVideo(stream, peerID) {
         if(videoAdded.has(peerID)) return
+        console.log('create');
         videoAdded[peerID] =true
         const row = document.createElement('div')
         row.setAttribute('className', 'row')
@@ -259,6 +260,7 @@ const CallPage = () => {
     }
 
     function leaveRoom() {
+        isMounted = false
         setEnded(true)
         socketRef?.current.destroy();
         if (dataStream) {

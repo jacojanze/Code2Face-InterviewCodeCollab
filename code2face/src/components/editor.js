@@ -107,7 +107,7 @@ five`);
 
         })
 
-        socketRef?.current.on(ACTIONS.SYNC_CODE, () => {
+        socketRef?.current?.on(ACTIONS.SYNC_CODE, () => {
             socketRef.current.emit(ACTIONS.CODE_CHANGE, {
                 roomId,
                 code,

@@ -6,8 +6,6 @@
     "@codemirror/lang-javascript": "^6.1.8",
     "@codemirror/language": "^6.7.0",
     "@codemirror/legacy-modes": "^6.3.2",
-    "@mediapipe/face_mesh": "^0.4.1633559619",
-    "@tensorflow-models/face-landmarks-detection": "^1.0.2",
     "@tensorflow/tfjs": "^4.7.0",
     "@tensorflow/tfjs-core": "^4.7.0",
     "@uiw/codemirror-extensions-basic-setup": "^4.20.2",
@@ -34,7 +32,6 @@
     "react-router-dom": "^6.11.2",
     "react-scripts": "^5.0.1",
     "short-unique-id": "^4.4.4",
-    "simple-peer": "^9.11.1",
     "socket.io-client": "^4.6.1"
   },
   "scripts": {

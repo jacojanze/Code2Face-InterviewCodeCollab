@@ -1,0 +1,4 @@
+runtime: nodejs18
+
+env_variables: 
+  REACT_APP_BACKEND_URI: 'https://code2faceapi.onrender.com'
