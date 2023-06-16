@@ -5,6 +5,10 @@ import { useCodeMirror } from '@uiw/react-codemirror';
 
 // import languages 
 import { javascript } from '@codemirror/lang-javascript';
+import { cpp } from '@codemirror/lang-cpp';
+import { python } from '@codemirror/lang-python';
+import { java } from '@codemirror/lang-java';
+
 // import themes 
 import { githubDark } from '@uiw/codemirror-theme-github';
 import { xcodeDark, xcodeLight } from '@uiw/codemirror-theme-xcode';
@@ -12,27 +16,25 @@ import { eclipse } from '@uiw/codemirror-theme-eclipse';
 import { abcdef } from '@uiw/codemirror-theme-abcdef';
 import { solarizedDark } from '@uiw/codemirror-theme-solarized';
 import ACTIONS from '../Actions';
-
+import copy from 'copy-to-clipboard';
+import toast from 'react-hot-toast';
 import "../styles/editor.css"
 import { Button } from 'react-bootstrap';
 
 
-const extensions = [javascript()]
+// const extensions = [javascript()]
 
 
-const Editor = ({ socketRef, roomId, onCodeChange }) => {
+const Editor = ({ socketRef, roomId, setglobalCode, globalCode }) => {
     const history = useLocation()
     const location = useLocation()
     const uname = location?.state?.username
     const [theme, setTheme] = useState(githubDark);
-    const [code, setCode] = useState(`one
-two
-three
-four
-five`);
+    const [code, setCode] = useState(globalCode);
+    const [extensions, setExtensions] = useState([javascript()])
     const [placeholder, setPlaceholder] = useState('Please enter the code.');
-    const [language, setLanguage] = useState('javascript');
     const thememap = new Map()
+    const langnMap = new Map()
     
     const editorRef = useRef(null)
     const {setContainer} = useCodeMirror({
@@ -58,6 +60,7 @@ five`);
             borderRadius: `10px`,
           },
         onChange:  (value) => {
+            setglobalCode(value)
             socketRef.current.emit(ACTIONS.CODE_CHANGE, {
                 roomId,
                 code:value,
@@ -76,19 +79,28 @@ five`);
         thememap.set("solarizedDark",solarizedDark)
     }
 
+    const langInit = () => {
+        langnMap.set('java', java)
+        langnMap.set('cpp', cpp)
+        langnMap.set('javascript', javascript)
+        langnMap.set('python', python)
+    }
+
     const handleChange = (editor, data, value) => {
         setCode(value);
-    };
-
-    const handleLanguageChange = (event) => {
-        setLanguage(event.target.value);
     };
 
     const handleThemeChange = (event) => {
         setTheme(thememap.get(event.target.value));
     };
 
+    const handleLanguageChange = (event) => {
+        setExtensions([langnMap.get(event.target.value)()]);
+        socketRef?.current?.emit(ACTIONS.LANG_CHANGE, {roomId, lang : event.target.value})
+    };
+
     themeInit()
+    langInit()
 
 
     useEffect(() => {
@@ -114,6 +126,11 @@ five`);
             })
         })
 
+        socketRef?.current?.on(ACTIONS.UPDATE_LAN, ({lang}) => {
+            console.log(lang);
+            setExtensions([langnMap.get(lang)()]);
+        })
+
     },[editorRef.current,socketRef.current])
 
     const updateCode = (e) => {
@@ -124,9 +141,16 @@ five`);
         })
     }
 
+    const copyCode = (e) => {
+        e.preventDefault();
+        if (copy(roomId))
+            toast.success('Session ID copied')
+        else toast.error('Cannot copy to clipboard')
+    }
+
     return (
         <div className='editorcomponent'>
-            <span>Theme</span>
+            <span>Theme:</span>
             <select onChange={handleThemeChange}>
                 <option default value={"githubDark"}>githubDark</option>
                 <option value={"eclipse"}>eclipse</option>
@@ -135,8 +159,18 @@ five`);
                 <option value={"solarizedDark"}>solarizedDark</option>
                 <option value={"abcdef"}>abcdef</option>
             </select>
+            <span>Language:</span>
+            <select onChange={handleLanguageChange}>
+                <option default value={"javascript"}>javascript</option>
+                <option value={"java"}>java</option>
+                <option value={"cpp"}>cpp</option>
+                <option value={"python"}>python</option>
+            </select>
             <div ref={editorRef} className='ide' ></div>
-            <Button className='mt-3' onChange={updateCode} >Update Code</Button>
+            <div className='d-flex'>
+                <Button className='mt-3 mx-4 btn-secondary' onClick={updateCode} >Update Code</Button>
+                <Button className='mt-3 btn-info' onClick={copyCode} >Copy Session Id</Button>
+            </div>
         </div>
     );
 }

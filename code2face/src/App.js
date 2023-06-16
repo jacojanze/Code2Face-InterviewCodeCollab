@@ -12,6 +12,7 @@ import CallPage from './pages/callPage';
 import NotFound from './pages/NotFound';
 // import Testing from './pages/testing';
 import { Toaster } from 'react-hot-toast';
+import Chat from './components/chat';
 
 
 export const UserContext = createContext();
@@ -37,6 +38,7 @@ function App() {
                                 <Route exact path="/login" element={<Login />} />
                                 <Route exact path="/call/:roomId" element={<CallPage/>} />
                                 {/* <Route exact path='/testing' element={<Testing/>} /> */}
+                                {/* <Route path="/chat" element={<Chat/>} /> */}
                                 <Route path="*" element={<NotFound/>} />
                         </Routes>
                     </div>

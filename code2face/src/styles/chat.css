@@ -4,21 +4,77 @@
 }
 
 .chatBox {
-    padding: 2px;
+    /* padding: 2px; */
     border-radius: 3px;
+    box-shadow: 0 4px 8px -4px rgb(20, 19, 20);
     border: solid 1px black;
-}
-
-.minp{
-    border: solid 2px rgb(255, 225, 53);
-}
-
-.finp{
-    display: inline;
-    border: 0 !important;
+    /* background-color: rgba(5, 121, 255, 0.329); */
 }
 
 .scroller{
-    min-height: 100px;
+    height: 110px;
     width: auto;
+    overflow-y: scroll;
+    /* overflow-y: visible; */
+}
+
+.msg-container {
+    padding: 8px 5px 0px 5px;
+}
+
+.send {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end ;
+}
+
+.senderName {
+    font-size: 12px;
+    font-weight: bolder;
+    color: blueviolet;
+    display: block;
+    margin: 0px;
+}
+
+.receive{
+    display: flex;
+    flex-direction: column;
+    align-items: normal ;
+}
+
+.msg {
+    padding: 2px 8px;
+    border-radius: 5px;
+    width: max-content;
+}
+
+.send .msg {
+    background-color: rgba(5, 195, 74, 0.629);
+}
+
+.receive .msg {
+    background-color: rgb(243, 201, 94);
+}
+
+
+.minp{
+    /* border: solid 2px rgb(255, 225, 53); */
+    background-color: gray;
+    width: auto;
+    padding: 8px;
+    padding-right: 0px;
+    /* padd */
+}
+
+.finp{
+
+    width: 90% !important;
+}
+
+.finp:focus {
+    outline: none;
+}
+
+.inlin {
+    display: inline !important;
 }

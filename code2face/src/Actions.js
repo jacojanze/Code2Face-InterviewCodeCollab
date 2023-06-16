@@ -4,8 +4,14 @@ const ACTIONS = {
     DISCONNECTED: 'disconnected',
     CODE_CHANGE: 'code-change',
     SYNC_CODE: 'sync-code',
-    SEND_STREAM: 'send-stream',
-    RECV_STREAM: 'recv-stream',
+    SHARE_PEER_IDS: 'share-peer-ids',
+    SIR_JOined: 'interviewer-joined',
+    MONITOR: 'monitor',
+    BEHAVIOUR: 'mis-behaving',
+    SEND_MSG : 'send-message',
+    RECV_MSG : 'receive-message',
+    LANG_CHANGE: 'change-language',
+    UPDATE_LAN: 'update-language',
     LEAVE: 'leave',
 };
 

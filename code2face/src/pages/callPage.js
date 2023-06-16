@@ -9,39 +9,41 @@ import { Button } from "react-bootstrap";
 import * as faceapi from 'face-api.js'
 import Chat from "../components/chat";
 import "../styles/callpage.css"
-const SocketContext = createContext();
 
 
 const CallPage = () => {
     const location = useLocation();
     const history = useNavigate();
+    const { roomId } = useParams();
+
     const myName = location.state?.username
-    let interviewer = localStorage.getItem('init')
-    const MOTION_THRESHOLD = 15;
+    const interviewer = location.state?.interviewer
+
+    const MOTION_THRESHOLD = 20;
+    const userPeerIdMap = new Map()
+    const idName = new Map()
+
+ 
     var userMoves =0 ;
     var previousLandmarks = null;
     var warned = false;
-    let dataStream = null
-    let refresh = 1;
-    var connects = [];
-    const userPeerIdMap = new Map()
-    const idName = new Map()
-    const videoAdded = new Map()
-    const [clients, setClients] = useState([]);
-    const { roomId } = useParams();
-    const [stream, setstream] = useState()
-    const [accept, setAccept] = useState(false)
-    const [ended, setEnded] = useState(false)
-    const [mySocketID, setmySocketID] = useState(null)
-    const [myPeerId, setmyPeerId] = useState(null)
     var peer = null
+    var dataStream = null
+    var timer;
+
+    const [stream, setstream] = useState()
+    const [myPeerId, setmyPeerId] = useState(null)
+    const [sirId, setsirId] = useState(null)
     const myVideo = useRef()
     const socketRef = useRef(null);
     const codeRef = useRef(null);
-    let isMounted = useRef(false);
+    const [globalCode, setglobalCode] = useState(`one
+two
+three
+four
+five`)
     
-    
-
+    //Face motion logic
     function analyzeFaceMotions(landmarks) {       
         const currentLandmarks = landmarks._positions;
 
@@ -66,13 +68,20 @@ const CallPage = () => {
     }
 
     async function detectFaceMotions() {
-        refresh = refresh%3;
-        setInterval(async()=> {
-            // if(warned) {
-            //     leaveRoom();
-            //     Location.reload()
-            // }
-            if(userMoves > 200) {
+        if(!myVideo.current) return;
+        
+        timer = setInterval(async()=> {
+            if(warned) {
+                if(sirId)
+                    socketRef?.current?.emit(ACTIONS.BEHAVIOUR , {roomId})
+                else {
+                    toast.error('Please Behave until the Interviewer joins')
+                }
+                warned=false
+                userMoves=0
+                return
+            }
+            if(userMoves > 12) {
                 toast.error("Warning! Interviewer will be notified if movement is observed again.")
                 warned=true;
             }
@@ -95,13 +104,10 @@ const CallPage = () => {
                 toast.error(" Please face the webcam!")
             }
 
-        }, 1200 * refresh)
-        refresh++;
-        
+        }, 1000 )
     }
 
     useEffect(() => {
-        isMounted = true;
 
         //take camera permission
         navigator?.mediaDevices?.getUserMedia({video : true, audio : true})
@@ -111,12 +117,14 @@ const CallPage = () => {
                 myVideo.current.srcObject = videoStream;
                 // initialize socket
                 init(videoStream)
+
+                if(interviewer)
+                    detectFaceMotions()
             })
             .catch((error) => {
                 console.log(error);
                 // alert('Camera permissions nedded to proceed with the Call')
             });
-
 
         //load faceapi Models
         loadModels()
@@ -141,91 +149,121 @@ const CallPage = () => {
             peer.on('open', function(id) {
                 setmyPeerId(id)
                 //Send joining info
+                // console.log(interviewer);
+                let flag = interviewer ? false : true
                 socketRef.current.emit(ACTIONS.JOIN, {
                     roomId,
                     username: myName,
-                    peerId:id
+                    peerId:id,
+                    flag
                 });
+
             });
 
             peer.on("connection", (conn) => {
-                connects.push(conn)
-                conn.on('data' , uname => {
-                    idName[conn.peer] = uname
+                conn.on('close', () => {
+                    const element = document.getElementById(conn.peer);
+                    element?.remove();
                 })
             });
 
             peer.on('call', (call) => {
-                console.log('received call');
                 call.answer(videoStream)
                 call.on('stream', (remoteStream) => {
                     addVideo(remoteStream, call.peer)
                 })
             })
 
+            socketRef.current.on(ACTIONS.MONITOR, () => {
+                toast('Please Monitor the Interviewees Movements')
+            })
+
+            //update existing users names and ids to current user
+            socketRef.current.on(ACTIONS.SHARE_PEER_IDS, ({userPeer, InterviewPeer}) => {
+                const keys = Object.keys(userPeer)
+                if(InterviewPeer )
+                    setsirId(InterviewPeer)
+                for(let key of keys) {
+                    idName[key] = userPeer[key]
+                }
+            })
+
             // Listening for joined event
             socketRef.current.on(
                 ACTIONS.JOINED,
-                ({ clients, username, socketId, peerId }) => {
+                ({ username, socketId, peerId }) => {
                     if (username !== location.state?.username) {
 
+                        socketRef.current.emit(ACTIONS.SYNC_CODE, {socketId, globalCode})
+                        console.log(globalCode);
                         var conn = peer.connect(peerId)
                         idName[peerId] = username
                         userPeerIdMap[username] = conn
-                        connects.push(conn)
+
                         conn.on("open", () => {
-                            conn.send(myName)
-                            console.log('called');
+
                             var call = peer.call(peerId, videoStream)
                             call.on('stream', (remoteStream) => {
                                 addVideo(remoteStream, peerId)
                             })
                         })
+
+
+                        conn.on('close', () => {
+                            const element = document.getElementById(peerId);
+                            element?.remove();
+                        })
                         toast.success(`${username} joined the room.`);
+                        if(peerId == sirId) {
+                            toast.success('Interviewer Joined')
+                        }
                     } 
                 }
             );
+
+            socketRef.current.on(ACTIONS.SIR_JOined, ({peerId}) => {
+                setsirId(peerId)
+                toast.success('Interviewer Joined')
+
+            })
 
             // Listening for disconnected
             socketRef.current.on(
                 ACTIONS.DISCONNECTED,
                 ({ socketId, username }) => {
                     toast.success(`${username} left the room.`);
-                    setClients((prev) => {
-                        return prev.filter(
-                            (client) => client.socketId !== socketId
-                        );
-                    });
                 }
             );
         };
+
         // Clean up function to remove camera permissions ans end socket
         return () => {
-            isMounted = false
+
+            clearInterval(timer)
             if (dataStream) {
                 const tracks = dataStream.getTracks();
                 tracks.forEach((track) => track.stop());
             }
-            // myVideo.current = null
+            if(peer) {
+                for(let vals of peer._connections) {
+                    for(let conn of vals[1]) {
+                        // console.log(conns);
+                        conn.peerConnection.close();
+                    }
+                }
+            }
             socketRef.current?.off(ACTIONS.JOINED);
             socketRef.current?.off(ACTIONS.DISCONNECTED);
             socketRef.current?.disconnect();
         };
     }, []);
 
-    useEffect(() => {
-        if(myVideo.current  && isMounted) {
-            // console.log('detecting');
-            // detectFaceMotions()
-        }
-    }, [myVideo.current])
     
     function addVideo(stream, peerID) {
-        if(videoAdded.has(peerID)) return
-        console.log('create');
-        videoAdded[peerID] =true
+
         const row = document.createElement('div')
         row.setAttribute('className', 'row')
+        row.setAttribute('id', peerID)
 
         const video = document.createElement('video')
         video.srcObject=stream;
@@ -241,7 +279,11 @@ const CallPage = () => {
         row.append(video)
         row.append(span)
 
+        const exist = document.getElementById(peerID)
+        if(exist) return
+
         const peerDiv  = document.getElementById('peerDiv')
+
         peerDiv.insertBefore(row, peerDiv.children[0])
 
     }
@@ -260,17 +302,7 @@ const CallPage = () => {
     }
 
     function leaveRoom() {
-        isMounted = false
-        setEnded(true)
-        socketRef?.current.destroy();
-        if (dataStream) {
-            const tracks = dataStream.getTracks();
-            tracks.forEach((track) => track.stop());
-        }
-        // for(let con of connects) {
-        //     con.close()
-        // }
-        peer?.close()
+        clearInterval(timer)
         history('/');
     }
 
@@ -292,25 +324,16 @@ const CallPage = () => {
                     )
                 }
                 </div>
-                <div className='row'>
-                {/* {   
-                accept &&   (
-                        <div className='velement'>
-                            
-                            <video playsInline ref={userVideo} muted autoPlay className='' id='received-video' />
-                        </div>
-                    )
-                } */}
-                </div>
-                <div className='row options'>
-
-                    <Button onClick={leaveRoom} className="mt-5" style={{width:'120px', margin:'auto'}}>Leave</Button>
-                </div>
                 <div className="row">
                     <Chat 
                         socketRef={socketRef}
                         roomId={roomId}
+                        username = {myName}
                     />
+                </div>
+                <div className='row options'>
+
+                    <Button onClick={leaveRoom} className="mt-5 btn-danger" style={{width:'120px', margin:'auto'}}>Leave</Button>
                 </div>
                 
             </div>
@@ -323,6 +346,8 @@ const CallPage = () => {
                                 codeRef.current = code;
                             }
                         }
+                        globalCode = {globalCode}
+                        setglobalCode = {setglobalCode}
                     />
                 </div>
                 

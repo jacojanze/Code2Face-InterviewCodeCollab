@@ -20,7 +20,7 @@ const Home = () => {
         value:'',
         copied:false
     })
-    const [interviewer, setInterviewer] = useState(true)
+    const [interviewer, setInterviewer] = useState(false)
   
 
     const handleChange1 = (e) => {
@@ -55,10 +55,11 @@ const Home = () => {
 
     const handleSwitch = (e) => {
         setInterviewer(!interviewer)
-        console.log(interviewer);
+        // console.log(interviewer);
     }
 
-    const handleJoin = async ()=> {
+    const handleJoin = async (e)=> {
+        e.preventDefault()
         if(sid.length==0 && sid1.length==0) {
             toast('Please generate or fill the Session ID', {
                 icon: '❕',
@@ -77,7 +78,7 @@ const Home = () => {
         history(`/call/${roomId}`, {
             state: {
                 username: uname,
-                interviewer,
+                interviewer:!interviewer,
             },
         });
     }
@@ -96,7 +97,7 @@ const Home = () => {
                         </div>
                         <div className='jcontent mt4'>
                             <h4>Start a New Session</h4>
-                            <Form>
+                            {/* <Form> */}
                                 <Form.Group className="mmb fin d-flex" controlId="">
                                     
                                     <Form.Control 
@@ -117,12 +118,12 @@ const Home = () => {
                                 {/* <Form.Group >
                                     <Button onClick={handleJoin}>Start</Button>
                                 </Form.Group> */}
-                            </Form>
+                            {/* </Form> */}
                             
                         </div>
                         <div className='jcontent mt-4'>
                             <h4>Join with Code</h4>
-                            <Form>
+                            {/* <Form> */}
                                 <Form.Group className="mmb fin " >
                                     <Form.Control 
                                         type="text" 
@@ -135,12 +136,12 @@ const Home = () => {
                                     <Form.Text>{validText}</Form.Text>
                                 </Form.Group>
                                 
-                            </Form>
+                            {/* </Form> */}
 
                         </div>
                         <div className='jcontent'>
 
-                            <Form>
+                            {/* <Form> */}
                                 <Form.Group className="mmb fin d-flex" controlId="">
                                     <Form.Control 
                                         type="text" 
@@ -164,7 +165,7 @@ const Home = () => {
                                 <Form.Group >
                                     <Button onClick={handleJoin}>Join Call</Button>
                                 </Form.Group>
-                            </Form>
+                            {/* </Form> */}
 
                         </div>
                     </div>

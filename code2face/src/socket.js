@@ -8,7 +8,10 @@ export const initSocket = async () => {
         transports: ['websocket'],
     };
     // console.log('conecting to socket');
-    // return io('http://192.168.209.214:3007', options);
-    // return io('http://localhost:3007',options);
-    return io(process.env.REACT_APP_BACKEND_URI, options);
+    // return io('https://c2f-api-vineethkumarm.koyeb.app:8000', options);
+    // return io('http://912.168.158.214:3007', options);
+    // return io('https://amazing-croissant-5bbe89.netlify.app/', options);
+    // return io('https://c2f-api.el.r.appspot.com', options);
+    return io('http://localhost:3007',options);
+    // return io(process.env.REACT_APP_BACKEND_URI, options);
 };
