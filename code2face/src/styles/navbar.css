@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Kalam&display=swap');
+
 .main-nav {
     background-color: rgb(213, 232, 248);
     margin: auto;
@@ -5,16 +7,16 @@
     align-items: center;
     height: 5rem;
     display: grid; 
-    grid-template-columns:  3fr 3fr 0.5fr; 
+    /* grid-template-columns:  3fr 3fr 0.5fr;  */
     border-radius: 1rem;
     box-shadow: 0 4px 8px -4px rgb(20, 19, 20);
 }
 
 
 .logo{
-    font-family:  sans-serif;
+    font-family: 'Kalam', cursive;
     font-weight: 600;
-    font-size: 20px !important;
+    font-size: 2em !important;
     text-align: center;
     /* left: -120px; */
     padding-right: 10vw;

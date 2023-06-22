@@ -5,7 +5,7 @@ const Login = () => {
 
     return (
         <div className='container'>
-            <div className='central'>
+            <div className='central btm-shadow'>
                 <h2>Login</h2>
                 <Form>
                     <Form.Group className="mmb fin" controlId="formBasicEmail">

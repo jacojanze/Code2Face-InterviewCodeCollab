@@ -26,6 +26,7 @@ a{
     flex-wrap: wrap-reverse;
     align-items: center;
     padding: auto;
+    padding-top: 1em;
     margin: auto 15vw;
     text-align: center;
 }
@@ -33,6 +34,58 @@ a{
 .cen-container{
     padding: auto;
     margin: auto;
+    max-width: 50%;
+}
+
+.blk-txt{
+    color: black;
+    background-color: white;
+    border-radius: 25px;
+}
+
+.myfont {
+    font-family: 'Kalam', cursive;
+}
+
+.t-color{
+    color: rgb(2, 115, 176);
+    font-weight: 700;
+}
+
+.central {
+    align-items: center;
+    margin: auto;
+    margin-top: 2em;
+    width: min(50vw,400px);
+    /* height: 40vh; */
+    padding: 2em;
+    border: solid 1px rgba(54, 55, 58, 0.125);
+    border-radius: 2em;
+    /* font-size: large; */
+}
+
+.lcentral {
+    align-items: center;
+    margin: auto;
+    width: min(50vw,450px);
+    /* height: 40vh; */
+    padding: 2em;
+    border: solid 1px rgba(54, 55, 58, 0.125);
+    border-radius: 2em;
+    /* font-size: large; */
+}
+
+.r-shadow {
+    box-shadow: 10px 6px 4px -3px lightblue;
+}
+
+.l-shadow {
+    box-shadow: -10px 6px 3px -2px lightblue;
+}
+
+
+.btm-shadow {
+    box-shadow: 0 12px 8px -4px lightblue;
 }
 
 .genInp{

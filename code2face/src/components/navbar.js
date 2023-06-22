@@ -52,7 +52,7 @@ const Navbar = () => {
                     {/* Test */}
                 </Link>
             </NavbarBrand>
-			<div className="navlinks">{renderList()}</div>
+			{/* <div className="navlinks">{renderList()}</div> */}
 		</nav>
 	);
 };

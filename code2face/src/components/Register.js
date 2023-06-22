@@ -10,7 +10,7 @@ const Register = () => {
     
     return (
         <div className='container'>
-            <div className='central'>
+            <div className='central btm-shadow'>
                 <h2>Register</h2>
                 <Form>
                     <Form.Group className="mmb fin" controlId="formBasicEmail">

@@ -4,6 +4,7 @@ import {useNavigate} from 'react-router-dom'
 import ShortUniqueId from 'short-unique-id';
 import toast from 'react-hot-toast'
 import copy from 'copy-to-clipboard';
+import { Carousel } from 'react-bootstrap';
 
 const Home = () => {
     const Suid = new ShortUniqueId()
@@ -86,13 +87,52 @@ const Home = () => {
     return (
         <div className='main-home'>
             <div className='cen-container'>
-                <Image src='/qna.png' className='img-fluid' />
+                {/* <Image src='/qna.png' className='img-fluid' /> */}
+                <div className='lcentral l-shadow'>
+                <Carousel data-bs-theme="dark">
+                    <Carousel.Item interval={500}>
+                        <img
+                        className="d-block w-100 img-fluid"
+                        src="/qna.png"
+                        alt="First slide"
+                        />
+                        <Carousel.Caption>
+                        <h5 className='blk-txt'>Online Interviews</h5>
+                        </Carousel.Caption>
+                    </Carousel.Item>
+                    <Carousel.Item interval={750}>
+                        <img  className="d-block w-100 img-fluid" src='/face scanner.png'/>
+                        <Carousel.Caption>
+                            <h5 className='blk-txt'>Face Motion Detection</h5>
+                        </Carousel.Caption>
+                    </Carousel.Item>
+                    <Carousel.Item interval={750}>
+                        <img className="d-block w-100 img-fluid"  src="/interview.jpg" />
+                        <Carousel.Caption>
+                            <h5 className='blk-txt'>Video Interview</h5>
+                        </Carousel.Caption>
+                    </Carousel.Item>
+                    <Carousel.Item interval={750}>
+                        <img className="d-block w-100 img-fluid"  src="/editor.jpeg" />
+                        <Carousel.Caption>
+                            <h5 className='blk-txt'>Live Code Editor</h5>
+                        </Carousel.Caption>
+                    </Carousel.Item>
+                    <Carousel.Item interval={750}>
+                        <img className="d-block w-100 img-fluid"  src="/chat.png" />
+                        <Carousel.Caption>
+                            <h5 className='blk-txt'> Live Chat</h5>
+                        </Carousel.Caption>
+                    </Carousel.Item>
+                    
+                </Carousel>
+                </div>
             </div>
             <div className='cen-container'>
-                <div className='central'>
+                <div className='central r-shadow'>
                     <div className='d-flex flex-column'>
                         <div className='jcontent'>
-                            <h3>Welcome to Code2Face</h3>
+                            <h3 className='t-color'>Welcome to <span className='myfont'>Code2Face</span></h3>
 
                         </div>
                         <div className='jcontent mt4'>
@@ -106,24 +146,16 @@ const Home = () => {
                                         placeholder="#uniqueId" 
                                         disabled 
                                         name="sid"
-                                        // onChange={handleChange}
                                         value={sid}
                                     />
-                                    {/* <CopyToClipboard> */}
                                         <Button className="btn-dark gen-btn"
                                             onClick={generateCode}
-                                        >Generate {fclick ? 'Again' : 'Code'}</Button>
-                                    {/* </CopyToClipboard> */}
+                                        >Generate {fclick ? 'Again' : ''}</Button>
                                 </Form.Group>
-                                {/* <Form.Group >
-                                    <Button onClick={handleJoin}>Start</Button>
-                                </Form.Group> */}
-                            {/* </Form> */}
                             
                         </div>
                         <div className='jcontent mt-4'>
                             <h4>Join with Code</h4>
-                            {/* <Form> */}
                                 <Form.Group className="mmb fin " >
                                     <Form.Control 
                                         type="text" 
@@ -135,13 +167,8 @@ const Home = () => {
                                     />
                                     <Form.Text>{validText}</Form.Text>
                                 </Form.Group>
-                                
-                            {/* </Form> */}
-
                         </div>
                         <div className='jcontent'>
-
-                            {/* <Form> */}
                                 <Form.Group className="mmb fin d-flex" controlId="">
                                     <Form.Control 
                                         type="text" 
@@ -165,7 +192,6 @@ const Home = () => {
                                 <Form.Group >
                                     <Button onClick={handleJoin}>Join Call</Button>
                                 </Form.Group>
-                            {/* </Form> */}
 
                         </div>
                     </div>
