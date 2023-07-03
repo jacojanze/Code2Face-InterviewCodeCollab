@@ -12,7 +12,7 @@ export const initSocket = async () => {
     // return io('http://172.19.16.176:3007', options);
     // return io('https://amazing-croissant-5bbe89.netlify.app/', options);
     // return io('https://c2f-api.el.r.appspot.com', options);
-    return io('http://localhost:3007',options);
+    // return io('http://localhost:3007',options);
     // return io()
-    // return io(process.env.REACT_APP_BACKEND_URI, options);
+    return io(process.env.REACT_APP_BACKEND_URI, options);
 };

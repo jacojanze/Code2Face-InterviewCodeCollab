@@ -175,7 +175,7 @@ five`)
             })
 
             socketRef.current.on(ACTIONS.MONITOR, () => {
-                toast('Please Monitor the Interviewees Movements')
+                toast('Please Monitor the Interviewees Movements, Motion threshold reached')
             })
 
             //update existing users names and ids to current user
@@ -236,7 +236,7 @@ five`)
             );
         };
 
-        // Clean up function to remove camera permissions ans end socket
+        // Clean up function to remove camera permissions and end socket
         return () => {
 
             clearInterval(timer)
