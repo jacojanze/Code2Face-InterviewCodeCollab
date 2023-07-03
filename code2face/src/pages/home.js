@@ -90,7 +90,7 @@ const Home = () => {
                 {/* <Image src='/qna.png' className='img-fluid' /> */}
                 <div className='lcentral l-shadow'>
                 <Carousel data-bs-theme="dark">
-                    <Carousel.Item interval={500}>
+                    <Carousel.Item key='1' interval={500}>
                         <img
                         className="d-block w-100 img-fluid"
                         src="/qna.png"
@@ -100,25 +100,25 @@ const Home = () => {
                         <h5 className='blk-txt'>Online Interviews</h5>
                         </Carousel.Caption>
                     </Carousel.Item>
-                    <Carousel.Item interval={750}>
+                    <Carousel.Item key='2' interval={750}>
                         <img  className="d-block w-100 img-fluid" src='/face scanner.png'/>
                         <Carousel.Caption>
                             <h5 className='blk-txt'>Face Motion Detection</h5>
                         </Carousel.Caption>
                     </Carousel.Item>
-                    <Carousel.Item interval={750}>
+                    <Carousel.Item key='3' interval={750}>
                         <img className="d-block w-100 img-fluid"  src="/interview.jpg" />
                         <Carousel.Caption>
                             <h5 className='blk-txt'>Video Interview</h5>
                         </Carousel.Caption>
                     </Carousel.Item>
-                    <Carousel.Item interval={750}>
+                    <Carousel.Item key='4' interval={750}>
                         <img className="d-block w-100 img-fluid"  src="/editor.jpeg" />
                         <Carousel.Caption>
                             <h5 className='blk-txt'>Live Code Editor</h5>
                         </Carousel.Caption>
                     </Carousel.Item>
-                    <Carousel.Item interval={750}>
+                    <Carousel.Item key='5' interval={750}>
                         <img className="d-block w-100 img-fluid"  src="/chat.png" />
                         <Carousel.Caption>
                             <h5 className='blk-txt'> Live Chat</h5>

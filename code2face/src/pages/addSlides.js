@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import { Form , Button} from 'react-bootstrap'
 import toast from 'react-hot-toast'
-
+const serverLink = process.env.REACT_APP_BACKEND_URI
 const AddSlides = () => {
 
     const [heading, setHeading] = useState("");
@@ -16,7 +16,7 @@ const AddSlides = () => {
         };
 
         try {
-            const response = await fetch("http://localhost:3007/save_data", {
+            const response = await fetch(`${serverLink}/save_data`, {
                 method: "POST",
                 headers: {
                 "Content-Type": "application/json"

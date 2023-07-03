@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import { Carousel } from 'react-bootstrap';
-
+import toast from 'react-hot-toast'
+const serverLink = process.env.REACT_APP_BACKEND_URI
 const Slides = () => {
 
     const [data, setData] = useState(Array([
@@ -9,7 +10,8 @@ const Slides = () => {
 
     useEffect(() => {
         async function fetchData() {
-            const res= await fetch("http://localhost:3007/get_data", {
+            try {
+            const res= await fetch(`${serverLink}/get_data`, {
                 method: "GET",
                 headers: {
                 "Content-Type": "application/json"
@@ -17,8 +19,10 @@ const Slides = () => {
             });
             const newData = await res.json();
             setData(newData)
-            console.log(newData);
-            console.log(data);
+            } catch(error) {
+                console.log(error);
+                toast.error("Error receiving data")
+            }
         }
         fetchData();
         
@@ -31,7 +35,7 @@ const Slides = () => {
                 {   
                     data.map((item, index) => (
                         
-                        <Carousel.Item interval={500}>
+                        <Carousel.Item key={index} interval={500}>
                             <div key={index}>
                                 <h2>{item.heading}</h2>
                                 <h6>{item.body }</h6>

@@ -20,7 +20,7 @@ const Navbar = () => {
 				<>
 					<Link key='profile' className="navlink" to="/profile">Profile</Link>
 					<Link key='dsf' className="navlink" to="/newPost">new post</Link>
-					<button className="btn btn-primary" onClick={() => {
+					<button key={jwt.slice(0,3)} className="btn btn-primary" onClick={() => {
 							localStorage.clear();
 							dispatch({type:"CLEAR"})
 							history('/')
@@ -48,7 +48,7 @@ const Navbar = () => {
 		<nav className="main-nav">
 			{/* <div className="logo" ><h3 href="/">Code2Face</h3></div> */}
             <NavbarBrand className="logo">
-                <Link to="/">
+                <Link key='logo' to="/">
                     Code2Face
                     {/* Test */}
                 </Link>
