@@ -1,0 +1,6 @@
+[
+    {
+        "head": "Contiguous memory allocation",
+        "body": "Static = divide the memory into fixed-sized blocks\n- allocate one block to each process\n- number of partitions controls the degree of multiprogramming\n\n- Dynamic: allocate available space to a process\n\n- Keep track of holes\n- strategies: first-fit, best-fit, worst fit\n- the worst-fit strategy results in large leftover holes (reusable)\n\n- Contiguous memory allocation leads to external fragmentation\n\n- there may be enough memory left to accommodate a process but it is scattered\n- solution: compaction (costly)"
+    }
+]

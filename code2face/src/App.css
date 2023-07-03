@@ -21,9 +21,12 @@ a{
 
 /* home */
 .main-home{
-    display: flex;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* display: flex;
     flex-direction: row;
-    flex-wrap: wrap-reverse;
+    flex-wrap: wrap-reverse; */
     align-items: center;
     padding: auto;
     padding-top: 1em;
