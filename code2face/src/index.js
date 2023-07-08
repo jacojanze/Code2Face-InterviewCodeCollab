@@ -7,10 +7,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const root_element = document.getElementById('root');
 const root= createRoot(root_element)
-root.render(
-    <React.StrictMode>
-        {/* <ContextProvider> */}
-            <App/>
-        {/* </ContextProvider> */}
-    </React.StrictMode>
-);
+root.render(<App />);
+
+// root.render(
+//     <React.StrictMode>
+//         {/* <ContextProvider> */}
+//             <App/>
+//         {/* </ContextProvider> */}
+//     </React.StrictMode>
+// );

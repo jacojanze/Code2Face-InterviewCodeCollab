@@ -22,11 +22,11 @@ a{
 /* home */
 .main-home{
 
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    /* display: flex;
+    /* display: grid;
+    grid-template-columns: 1fr 1fr; */
+    display: flex;
     flex-direction: row;
-    flex-wrap: wrap-reverse; */
+    flex-wrap: wrap-reverse;
     align-items: center;
     padding: auto;
     padding-top: 1em;
@@ -35,9 +35,9 @@ a{
 }
 
 .cen-container{
-    padding: auto;
+    padding: 1em;
     margin: auto;
-    max-width: 50%;
+    max-width: min(85vw, 1000px);
 }
 
 .blk-txt{
@@ -59,23 +59,25 @@ a{
     align-items: center;
     margin: auto;
     margin-top: 2em;
-    width: min(50vw,400px);
-    /* height: 40vh; */
-    padding: 2em;
+    width: 400px; 
+    /* width: fit-content; */
+    padding: 1em;
     border: solid 1px rgba(54, 55, 58, 0.125);
-    border-radius: 2em;
-    /* font-size: large; */
+    border-radius: 2em; 
 }
 
 .lcentral {
     align-items: center;
     margin: auto;
-    width: min(50vw,450px);
-    /* height: 40vh; */
-    padding: 2em;
+    width: min(40vw,450px);
+    
+    padding: 1em;
     border: solid 1px rgba(54, 55, 58, 0.125);
-    border-radius: 2em;
-    /* font-size: large; */
+    border-radius: 2em; 
+}
+
+.fwid {
+    width: min(45vw, 400px);
 }
 
 .r-shadow {
@@ -120,3 +122,39 @@ a{
     color: rgb(219, 39, 39);
 }
 
+
+@media only screen and (max-width: 600px) {
+    .central{
+        width: 75vw;
+    }
+    .lcentral{
+        width: 75vw;
+    }
+    .fwid {
+        width: 65vw;
+    }
+    .cen-container{
+        padding-left: 0;
+    }
+    .main-nav{
+        width: 100vw !important;
+    }
+}
+
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+    .genInp{
+        display: block !important;
+    }
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+
+}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {
+
+}

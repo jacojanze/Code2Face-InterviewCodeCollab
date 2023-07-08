@@ -15,6 +15,7 @@ import { Toaster } from 'react-hot-toast';
 import Chat from './components/chat';
 import Slides from './pages/slides';
 import AddSlides from './pages/addSlides';
+import PeerCall from './pages/peerCall';
 
 
 export const UserContext = createContext();
@@ -38,7 +39,8 @@ function App() {
                                 <Route eaxct path="/" element={<Home/>} />
                                 <Route exact path="/register" element={<Register/>} />
                                 <Route exact path="/login" element={<Login />} />
-                                <Route exact path="/call/:roomId" element={<CallPage/>} />
+                                {/* <Route exact path="/call/:roomId" element={<CallPage/>} /> */}
+                                <Route exact path="/call/:roomId" element={<PeerCall/>} />
                                 <Route exact path='/slides' element={<Slides/>} />
                                 <Route exact path='/add' element={<AddSlides/>} />
                                 {/* <Route path="/chat" element={<Chat/>} /> */}

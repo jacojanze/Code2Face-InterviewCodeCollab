@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Image, Form, Button } from 'react-bootstrap'
+import {  Form, Button } from 'react-bootstrap'
 import {useNavigate} from 'react-router-dom'
 import ShortUniqueId from 'short-unique-id';
 import toast from 'react-hot-toast'
@@ -17,10 +17,6 @@ const Home = () => {
     const [sid1, setSid1] = useState('')
     const [validText, setvalidText] = useState(valt)
     const alphanumericRegex = /^[a-zA-Z0-9]+$/;
-    const [copier, setCopier] = useState({
-        value:'',
-        copied:false
-    })
     const [interviewer, setInterviewer] = useState(false)
   
 
@@ -61,7 +57,7 @@ const Home = () => {
 
     const handleJoin = async (e)=> {
         e.preventDefault()
-        if(sid.length==0 && sid1.length==0) {
+        if(sid.length===0 && sid1.length===0) {
             toast('Please generate or fill the Session ID', {
                 icon: '❕',
               });
@@ -89,7 +85,7 @@ const Home = () => {
             <div className='cen-container'>
                 {/* <Image src='/qna.png' className='img-fluid' /> */}
                 <div className='lcentral l-shadow'>
-                <Carousel data-bs-theme="dark">
+                <Carousel data-bs-theme="dark" className='fwid'>
                     <Carousel.Item key='1' interval={500}>
                         <img
                         className="d-block w-100 img-fluid"
@@ -101,25 +97,25 @@ const Home = () => {
                         </Carousel.Caption>
                     </Carousel.Item>
                     <Carousel.Item key='2' interval={750}>
-                        <img  className="d-block w-100 img-fluid" src='/face scanner.png'/>
+                        <img alt='face motion' className="d-block w-100 img-fluid" src='/face scanner.png'/>
                         <Carousel.Caption>
                             <h5 className='blk-txt'>Face Motion Detection</h5>
                         </Carousel.Caption>
                     </Carousel.Item>
                     <Carousel.Item key='3' interval={750}>
-                        <img className="d-block w-100 img-fluid"  src="/interview.jpg" />
+                        <img alt='video' className="d-block w-100 img-fluid"  src="/interview.jpg" />
                         <Carousel.Caption>
                             <h5 className='blk-txt'>Video Interview</h5>
                         </Carousel.Caption>
                     </Carousel.Item>
                     <Carousel.Item key='4' interval={750}>
-                        <img className="d-block w-100 img-fluid"  src="/editor.jpeg" />
+                        <img alt='code editor' className="d-block w-100 img-fluid"  src="/editor.jpeg" />
                         <Carousel.Caption>
                             <h5 className='blk-txt'>Live Code Editor</h5>
                         </Carousel.Caption>
                     </Carousel.Item>
                     <Carousel.Item key='5' interval={750}>
-                        <img className="d-block w-100 img-fluid"  src="/chat.png" />
+                        <img alt='live chat' className="d-block w-100 img-fluid"  src="/chat.png" />
                         <Carousel.Caption>
                             <h5 className='blk-txt'> Live Chat</h5>
                         </Carousel.Caption>

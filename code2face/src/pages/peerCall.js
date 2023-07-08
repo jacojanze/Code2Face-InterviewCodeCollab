@@ -1,9 +1,8 @@
 import React, {useState, createContext, useRef, useEffect} from "react";
-import { initSocket } from '../socket';
+
 import toast from 'react-hot-toast';
 import { useLocation, useNavigate, useParams, Navigate } from 'react-router-dom';
-import Editor from '../components/editor';
-import ACTIONS from '../Actions';
+
 import {Peer} from 'peerjs'
 import { Button } from "react-bootstrap";
 import * as faceapi from 'face-api.js'
@@ -11,7 +10,7 @@ import Chat from "../components/chat";
 import "../styles/callpage.css"
 
 
-const CallPage = () => {
+const PeerCall = () => {
     const location = useLocation();
     const history = useNavigate();
     const { roomId } = useParams();
@@ -29,19 +28,17 @@ const CallPage = () => {
     var warned = false;
     var peer = null
     var dataStream = null
-    var adioStream=null
-    var disStream =null
+    
     var timer;
 
-
+    const [allPeers, setAllPeers] = useState([])
     const [stream, setstream] = useState(null)
     const [audio, setAudio] = useState()
     const [display, setdisplay] = useState()
     const [displayCheck, setDisplayCheck] = useState(false)
-    const [myPeerId, setmyPeerId] = useState(null)
+    const [myPeerId, setMyPeerId] = useState(null)
     const [sirId, setsirId] = useState(null)
-    const myVideo = useRef()
-    const socketRef = useRef(null);
+    const myVideo = useRef() 
     const codeRef = useRef(null);
     const [code, setcode] = useState(`one\ntwo\nthree\nfour\nfive`)
     
@@ -70,12 +67,13 @@ const CallPage = () => {
     }
 
     async function detectFaceMotions() {
+        // console.log(myVideo);
         if(!myVideo.current) return;
         
         timer = setInterval(async()=> {
             if(warned) {
-                if(sirId)
-                    socketRef?.current?.emit(ACTIONS.BEHAVIOUR , {roomId})
+                if(sirId) {}
+                    // socketRef?.current?.emit(ACTIONS.BEHAVIOUR , {roomId})
                 else {
                     toast.error('Please Behave until the Interviewer joins')
                 }
@@ -116,12 +114,9 @@ const CallPage = () => {
             .then(videoStream => {
                 dataStream= videoStream;
                 setstream(videoStream);
-                myVideo.current.srcObject = videoStream;
+                // myVideo.current.srcObject = videoStream;
                 // initialize socket
-                // console.log(stream);
-                // console.log(dataStream);
-                // console.log(videoStream);
-                init(dataStream)
+                init(videoStream)
 
                 if(interviewer)
                     detectFaceMotions()
@@ -130,44 +125,77 @@ const CallPage = () => {
                 console.log(error);
                 // alert('Camera permissions nedded to proceed with the Call')
             });
-
       
         //load faceapi Models
         loadModels()
         
         //socket connecting function
         const init = async (videoStream) => {
-            socketRef.current = await initSocket();
-             
-            socketRef.current.on('connect_error', (err) => handleErrors(err));
-            socketRef.current.on('connect_failed', (err) => handleErrors(err));
-
-            function handleErrors(e) {
-                console.log('socket error', e);
-                toast.error('Socket connection failed, try again later.');
-                history('/');
-                return
-            }
             
             // PeerJS functionality starts 
             peer = new Peer()
             // once peer created join room
             peer.on('open', function(id) {
-                setmyPeerId(id)
-                //Send joining info
-                // console.log(interviewer);
-                let flag = interviewer ? false : true
-                socketRef.current.emit(ACTIONS.JOIN, {
-                    roomId,
+                setMyPeerId(id)
+                console.log('my peer id ', id, myPeerId);
+                addVideo(videoStream, id, myName)
+                let flag = interviewer ? false :  true
+                fetch('http://localhost:3007/join', {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        roomId,
                     username: myName,
                     peerId:id,
                     flag
-                });
-
+                    })
+                }).then(res => res.json())
+                .then(data => {
+                    // console.log(data);
+                    setAllPeers(data);
+                    for(const {peerId, username} of data) {
+                   
+                        let conn = peer.connect(peerId)
+    
+                        conn.on("open", () => {
+                            
+                            conn.send({id, name:myName})
+                            let call = peer.call(peerId, videoStream)
+                           
+                            console.log('Connected to ', peerId);
+                            
+                            call.on('stream', (remoteStream) => {
+                                console.log('call accepted ', username);
+                                addVideo(remoteStream, peerId, username)
+                            })
+                        })
+    
+    
+                        conn.on('close', () => {
+                            const element = document.getElementById(peerId);
+                            element?.remove();
+                        })
+                  
+                        if(peerId == sirId) {
+                            toast.success('Interviewer Joined')
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+                
             });
 
             peer.on("connection", (conn) => {
+                conn.on('data', ({id,name}) => {
+                    console.log('received name form ,', name);
+                    idName[id]=name
+                })
                 conn.on('close', () => {
+                    toast.success(`${idName[conn.peer]} left the Call`)
                     const element = document.getElementById(conn.peer);
                     element?.remove();
                 })
@@ -175,91 +203,38 @@ const CallPage = () => {
 
             peer.on('call', (call) => {
                 call.answer(videoStream)
+                console.log('call received ', call.peer, idName);
                 call.on('stream', (remoteStream) => {
-                    addVideo(remoteStream, call.peer)
+                    console.log('received stream from remote user');
+                    addVideo(remoteStream, call.peer, idName[call.peer])
                 })
+                toast.success(`${call.peer} joined the Call`)
             })
+
 
             
-
-            socketRef.current.on(ACTIONS.MONITOR, () => {
-                toast('Please Monitor the Interviewees Movements, Motion threshold reached')
-            })
-
-            //update existing users names and ids to current user
-            socketRef.current.on(ACTIONS.SHARE_PEER_IDS, ({userPeer, InterviewPeer}) => {
-                const keys = Object.keys(userPeer)
-                if(InterviewPeer )
-                    setsirId(InterviewPeer)
-                for(let key of keys) {
-                    idName[key] = userPeer[key]
-                }
-            })
-
-            // Listening for joined event
-            socketRef.current.on(
-                ACTIONS.JOINED,
-                ({ username, socketId, peerId }) => {
-                    if (username !== location.state?.username) {
-
-                        // socketRef.current.emit(ACTIONS.SYNC_CODE, {socketId, code})
-                        
-
-                        var conn = peer.connect(peerId)
-                        idName[peerId] = username
-                        userPeerIdMap[username] = conn
-
-                        conn.on("open", () => {
-
-                            var call = peer.call(peerId, videoStream)
-                            call.on('stream', (remoteStream) => {
-                                addVideo(remoteStream, peerId)
-                            })
-                        })
-
-
-                        conn.on('close', () => {
-                            const element = document.getElementById(peerId);
-                            const scrElement = document.getElementById(peerId+"screen")
-                            scrElement?.remove()
-                            element?.remove();
-                        })
-                        toast.success(`${username} joined the room.`);
-                        socketRef.current.emit(ACTIONS.CODE_CHANGE, {
-                            roomId,
-                            code:code,
-                        })
-                        if(peerId == sirId) {
-                            toast.success('Interviewer Joined')
-                        }
-                    } 
-                }
-            );
-
-            socketRef.current.on(ACTIONS.SIR_JOined, ({peerId}) => {
-                setsirId(peerId)
-                toast.success('Interviewer Joined')
-
-            })
-
-            // Listening for disconnected
-            socketRef.current.on(
-                ACTIONS.DISCONNECTED,
-                ({ socketId, username }) => {
-                    toast.success(`${username} left the room.`);
-                }
-            );
         };
 
         // Clean up function to remove camera permissions and end socket
         return () => {
 
             clearInterval(timer)
-            if (dataStream) {
-                const tracks = dataStream.getTracks();
-                tracks.forEach((track) => track.stop());
-            }
             if(peer) {
+                try {
+                    fetch('http://localhost:3007/leave', {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        roomId,
+                        peerId:myPeerId,
+                    })
+                    })
+                } catch(err) {
+                    console.log(err);
+                    toast.error("Coudn't leave the room at the current moment")
+                }
                 for(let vals of peer._connections) {
                     for(let conn of vals[1]) {
                         // console.log(conns);
@@ -267,14 +242,11 @@ const CallPage = () => {
                     }
                 }
             }
-            socketRef.current?.off(ACTIONS.JOINED);
-            socketRef.current?.off(ACTIONS.DISCONNECTED);
-            socketRef.current?.disconnect();
         };
     }, []);
 
     
-    function addVideo(vstream, peerID) {
+    function addVideo(vstream, peerID, userName="user" ) {
         const prev = document.getElementById(peerID)
         prev?.remove()
         const row = document.createElement('div')
@@ -287,9 +259,13 @@ const CallPage = () => {
         video.addEventListener('loadedmetadata', () => {
             video.play()
         })
+        console.log(peerID, myPeerId);
+        if(peerID==myPeerId) {
+            myVideo.current = video
+        }
 
         const span = document.createElement('span')
-        span.innerText = idName[peerID]
+        span.innerText = userName
         span.setAttribute('class', 'tagName')
 
         row.append(video)
@@ -359,23 +335,7 @@ const CallPage = () => {
     return (
         <div className='callpage'>
             <div className='vcont' id='peerDiv'>
-                <div className='row' id="myrow">
-                    {  stream && (
-                        <div className='velement'>
-
-                            <video playsInline ref={myVideo} muted autoPlay className='' id="myvid" />
-                            <span className="tagName">{myName}</span>
-                        </div>
-                    )
-                }
-                </div>
-                <div className="row">
-                    <Chat 
-                        socketRef={socketRef}
-                        roomId={roomId}
-                        username = {myName}
-                    />
-                </div>
+                
                 <div className='row options'>
                     <Button onClick={!displayCheck ? screenShareHandler : stopCapture} className="mt-2"  style={{width:'180px', margin:'auto'}}>{!displayCheck?'Screen Share' : 'Stop Share'}</Button>
                     <Button onClick={leaveRoom} className="mt-2 btn-danger" style={{width:'120px', margin:'auto'}}>Leave</Button>
@@ -383,19 +343,10 @@ const CallPage = () => {
                 </div>
                 
             </div>
-            <div className='ECcont'>
-                <div className='econt'>
-                    <Editor
-                        socketRef={socketRef}
-                        roomId={roomId}
-                        onCodeChange={setcode}
-                        code = {code}
-                    />
-                </div>
-                
-            </div>
+            
+            
         </div>
     )
 }
 
-export default CallPage
+export default PeerCall

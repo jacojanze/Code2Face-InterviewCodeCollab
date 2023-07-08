@@ -25,12 +25,13 @@ import { Button } from 'react-bootstrap';
 // const extensions = [javascript()]
 
 
-const Editor = ({ socketRef, roomId, setglobalCode, globalCode }) => {
+const Editor = ({ socketRef, roomId, onCodeChange, code }) => {
     const history = useLocation()
     const location = useLocation()
     const uname = location?.state?.username
     const [theme, setTheme] = useState(githubDark);
-    const [code, setCode] = useState(globalCode);
+    // const [code, setcode] = useState(code);
+    const [selectValue, setSelectValue] = useState('javascript')
     const [extensions, setExtensions] = useState([javascript()])
     const [placeholder, setPlaceholder] = useState('Please enter the code.');
     const thememap = new Map()
@@ -60,7 +61,7 @@ const Editor = ({ socketRef, roomId, setglobalCode, globalCode }) => {
             borderRadius: `10px`,
           },
         onChange:  (value) => {
-            setglobalCode(value)
+            onCodeChange(value)
             socketRef.current.emit(ACTIONS.CODE_CHANGE, {
                 roomId,
                 code:value,
@@ -87,7 +88,7 @@ const Editor = ({ socketRef, roomId, setglobalCode, globalCode }) => {
     }
 
     const handleChange = (editor, data, value) => {
-        setCode(value);
+        onCodeChange(value);
     };
 
     const handleThemeChange = (event) => {
@@ -96,6 +97,7 @@ const Editor = ({ socketRef, roomId, setglobalCode, globalCode }) => {
 
     const handleLanguageChange = (event) => {
         setExtensions([langnMap.get(event.target.value)()]);
+        setSelectValue(event.target.value)
         socketRef?.current?.emit(ACTIONS.LANG_CHANGE, {roomId, lang : event.target.value})
     };
 
@@ -114,7 +116,7 @@ const Editor = ({ socketRef, roomId, setglobalCode, globalCode }) => {
 
         socketRef.current?.on(ACTIONS.CODE_CHANGE, (data) => {
             if(data !==null && data.code!==null && data.code!=code) {
-                setCode(data.code)
+                onCodeChange(data.code)
             }   
 
         })
@@ -127,8 +129,9 @@ const Editor = ({ socketRef, roomId, setglobalCode, globalCode }) => {
         })
 
         socketRef?.current?.on(ACTIONS.UPDATE_LAN, ({lang}) => {
-            console.log(lang);
+            // console.log(lang);
             setExtensions([langnMap.get(lang)()]);
+            setSelectValue(lang)
         })
 
     },[editorRef.current,socketRef.current])
@@ -151,7 +154,7 @@ const Editor = ({ socketRef, roomId, setglobalCode, globalCode }) => {
     return (
         <div className='editorcomponent'>
             <span>Theme:</span>
-            <select onChange={handleThemeChange}>
+            <select onChange={handleThemeChange} >
                 <option default value={"githubDark"}>githubDark</option>
                 <option value={"eclipse"}>eclipse</option>
                 <option value={"xcodeLight"}>xcodeLight</option>
@@ -160,7 +163,7 @@ const Editor = ({ socketRef, roomId, setglobalCode, globalCode }) => {
                 <option value={"abcdef"}>abcdef</option>
             </select>
             <span>Language:</span>
-            <select onChange={handleLanguageChange}>
+            <select onChange={handleLanguageChange} value={selectValue}>
                 <option default value={"javascript"}>javascript</option>
                 <option value={"java"}>java</option>
                 <option value={"cpp"}>cpp</option>

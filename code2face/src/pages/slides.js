@@ -30,13 +30,13 @@ const Slides = () => {
 
     return (
         <div className=''>
-            <div className='cen-container l-shadow lcentral mt-5 f-height'>
+            <div className='cen-container l-shadow lcentral mt-5 '>
                 <Carousel>
                 {   
                     data.map((item, index) => (
                         
                         <Carousel.Item key={index} interval={500}>
-                            <div key={index}>
+                            <div key={index} className='f-height'>
                                 <h2>{item.heading}</h2>
                                 <h6>{item.body }</h6>
                             </div>
