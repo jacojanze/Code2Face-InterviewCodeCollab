@@ -139,7 +139,7 @@ const PeerCall = () => {
                 
                 addVideo(videoStream, id, myName)
                 let flag = interviewer ? false :  true
-                fetch(`${server}/join`, {
+                fetch(`${server}join`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -214,7 +214,7 @@ const PeerCall = () => {
             clearInterval(timer)
             if(peer) {
                 try {
-                    fetch(`${server}/leave`, {
+                    fetch(`${server}leave`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
