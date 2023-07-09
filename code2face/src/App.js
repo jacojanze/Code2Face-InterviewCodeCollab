@@ -1,5 +1,5 @@
 import './App.css';
-import React,{useCallback,useContext, useState, useEffect, createContext, useReducer} from 'react';
+import React,{createContext, useReducer} from 'react';
 import {Route , BrowserRouter as Router,Routes} from 'react-router-dom'
 import { initialState, reducer } from './reducers/userReducer';
 import 'react-bootstrap'
@@ -8,11 +8,9 @@ import MyNavbar from './components/navbar';
 import Register from './components/Register';
 import Login from './components/Login';
 import Home from './pages/home';
-import CallPage from './pages/callPage';
 import NotFound from './pages/NotFound';
 // import Testing from './pages/testing';
 import { Toaster } from 'react-hot-toast';
-import Chat from './components/chat';
 import Slides from './pages/slides';
 import AddSlides from './pages/addSlides';
 import PeerCall from './pages/peerCall';

@@ -2,13 +2,13 @@ import React, {useState, createContext, useRef, useEffect} from "react";
 
 import toast from 'react-hot-toast';
 import { useLocation, useNavigate, useParams, Navigate } from 'react-router-dom';
-
 import {Peer} from 'peerjs'
 import { Button } from "react-bootstrap";
 import * as faceapi from 'face-api.js'
-import Chat from "../components/chat";
-import "../styles/callpage.css"
-
+import Chat from "../components/pchat";
+import Editor from "../components/peditor";
+import "../styles/callpage.css";
+const server = process.env.REACT_APP_BACKEND_URI;
 
 const PeerCall = () => {
     const location = useLocation();
@@ -19,7 +19,8 @@ const PeerCall = () => {
     const interviewer = location.state?.interviewer
 
     const MOTION_THRESHOLD = 20;
-    const userPeerIdMap = new Map()
+    // const myConns = new Map()
+    const [myConns, setMyConns] = useState(new Map())
     const idName = new Map()
 
  
@@ -28,15 +29,16 @@ const PeerCall = () => {
     var warned = false;
     var peer = null
     var dataStream = null
-    
+    var myPeerId;
     var timer;
 
     const [allPeers, setAllPeers] = useState([])
     const [stream, setstream] = useState(null)
-    const [audio, setAudio] = useState()
-    const [display, setdisplay] = useState()
+    const [lang, setLang] = useState('javascript')
+    // const [audio, setAudio] = useState()
+    // const [display, setdisplay] = useState()
     const [displayCheck, setDisplayCheck] = useState(false)
-    const [myPeerId, setMyPeerId] = useState(null)
+    // const [myPeerId, useState(null)
     const [sirId, setsirId] = useState(null)
     const myVideo = useRef() 
     const codeRef = useRef(null);
@@ -108,13 +110,12 @@ const PeerCall = () => {
     }
 
     useEffect(() => {
-
         //take camera permission
         navigator?.mediaDevices?.getUserMedia({video : true})
             .then(videoStream => {
                 dataStream= videoStream;
                 setstream(videoStream);
-                // myVideo.current.srcObject = videoStream;
+                
                 // initialize socket
                 init(videoStream)
 
@@ -123,24 +124,22 @@ const PeerCall = () => {
             })
             .catch((error) => {
                 console.log(error);
-                // alert('Camera permissions nedded to proceed with the Call')
+                return <Navigate to="/" />;
+
             });
-      
         //load faceapi Models
-        loadModels()
-        
+        loadModels()  
         //socket connecting function
         const init = async (videoStream) => {
-            
             // PeerJS functionality starts 
             peer = new Peer()
             // once peer created join room
             peer.on('open', function(id) {
-                setMyPeerId(id)
-                console.log('my peer id ', id, myPeerId);
+                myPeerId = id
+                
                 addVideo(videoStream, id, myName)
                 let flag = interviewer ? false :  true
-                fetch('http://localhost:3007/join', {
+                fetch(`${server}/join`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -153,27 +152,26 @@ const PeerCall = () => {
                     })
                 }).then(res => res.json())
                 .then(data => {
-                    // console.log(data);
                     setAllPeers(data);
                     for(const {peerId, username} of data) {
                    
                         let conn = peer.connect(peerId)
     
                         conn.on("open", () => {
-                            
-                            conn.send({id, name:myName})
+                            myConns.set(conn, username)
+                            conn.send({sig:1,data:{id, name:myName}})
                             let call = peer.call(peerId, videoStream)
-                           
-                            console.log('Connected to ', peerId);
-                            
                             call.on('stream', (remoteStream) => {
-                                console.log('call accepted ', username);
                                 addVideo(remoteStream, peerId, username)
                             })
                         })
-    
-    
+
+                        conn.on('data', ({sig, data}) => {
+                            recvHandler(conn, sig, data)
+                        })
+
                         conn.on('close', () => {
+                            myConns.delete(conn)
                             const element = document.getElementById(peerId);
                             element?.remove();
                         })
@@ -190,11 +188,11 @@ const PeerCall = () => {
             });
 
             peer.on("connection", (conn) => {
-                conn.on('data', ({id,name}) => {
-                    console.log('received name form ,', name);
-                    idName[id]=name
+                conn.on('data', ({sig, data}) => {
+                    recvHandler(conn,sig,data)
                 })
                 conn.on('close', () => {
+                    myConns.delete(conn)
                     toast.success(`${idName[conn.peer]} left the Call`)
                     const element = document.getElementById(conn.peer);
                     element?.remove();
@@ -203,16 +201,11 @@ const PeerCall = () => {
 
             peer.on('call', (call) => {
                 call.answer(videoStream)
-                console.log('call received ', call.peer, idName);
                 call.on('stream', (remoteStream) => {
-                    console.log('received stream from remote user');
                     addVideo(remoteStream, call.peer, idName[call.peer])
                 })
-                toast.success(`${call.peer} joined the Call`)
-            })
-
-
-            
+                toast.success(`${idName[call.peer]} joined the Call`)
+            }) 
         };
 
         // Clean up function to remove camera permissions and end socket
@@ -221,7 +214,7 @@ const PeerCall = () => {
             clearInterval(timer)
             if(peer) {
                 try {
-                    fetch('http://localhost:3007/leave', {
+                    fetch(`${server}/leave`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -235,17 +228,67 @@ const PeerCall = () => {
                     console.log(err);
                     toast.error("Coudn't leave the room at the current moment")
                 }
-                for(let vals of peer._connections) {
-                    for(let conn of vals[1]) {
-                        // console.log(conns);
-                        conn.peerConnection.close();
-                    }
-                }
+                peer.destroy();
             }
         };
     }, []);
 
+    //Funtions to be triggered by child components passed as props
+
+    const sendHandler = (sig, data) => {
+        for(const [conn, name] of myConns) {
+            conn.send({sig, data})
+        }
+    }
+
+    const recvHandler =  (conn, sig,data) => {
+        switch (sig) {
+            case 1: {
+            //share name
+                const {id,name} = data
+                myConns.set(conn, name)
+                idName[id]=name
+                break;
+            }
+            case 2:{
+            // chat msg
+                const {username, msg} = data
+                addRecvMsg(msg,username)
+            }
+            case 3:{
+            // code update
+                const {value} = data
+                if(value!=code)
+                    setcode(value);
+            }
+            case 4:{
+            // language change
+                const {newLang} = data
+                if(lang!=newLang) setLang(newLang)
+            }
+            default:
+                break;
+        }
+    }
+
+    const addRecvMsg = (text,name='Unknown') => {
+        const element = 
+            ` <div class='receive'>
+                    <div class='msg'>
+                    <span class='senderName' >${name}</span>
+                       ${text}
+                    </div>
+                </div>`;
+        const rdiv = document.createElement('div')
+        rdiv.innerHTML=element
+        rdiv.setAttribute('class', 'msg-container')
+        const par = document.getElementById('msg-div')
+        par?.appendChild(rdiv)  
+        par.scrollTop = par.scrollHeight
+    }
     
+
+    //Functions related to this component
     function addVideo(vstream, peerID, userName="user" ) {
         const prev = document.getElementById(peerID)
         prev?.remove()
@@ -259,7 +302,7 @@ const PeerCall = () => {
         video.addEventListener('loadedmetadata', () => {
             video.play()
         })
-        console.log(peerID, myPeerId);
+        // console.log(peerID, myPeerId);
         if(peerID==myPeerId) {
             myVideo.current = video
         }
@@ -276,7 +319,7 @@ const PeerCall = () => {
 
         const peerDiv  = document.getElementById('peerDiv')
 
-        peerDiv.insertBefore(row, peerDiv.children[0])
+        peerDiv?.insertBefore(row, peerDiv.children[0])
 
     }
 
@@ -323,6 +366,9 @@ const PeerCall = () => {
     }
 
     function leaveRoom() {
+        if(peer) {
+            peer.destroy()
+        }
         clearInterval(timer)
         history('/');
     }
@@ -336,14 +382,36 @@ const PeerCall = () => {
         <div className='callpage'>
             <div className='vcont' id='peerDiv'>
                 
+                <div className="row">
+                    <Chat 
+                        recvMsg={addRecvMsg}
+                        conns = {myConns}
+                        roomId={roomId}
+                        username = {myName}
+                        sendHandler = {sendHandler}
+                        peer={peer}
+                    />
+                </div>
                 <div className='row options'>
                     <Button onClick={!displayCheck ? screenShareHandler : stopCapture} className="mt-2"  style={{width:'180px', margin:'auto'}}>{!displayCheck?'Screen Share' : 'Stop Share'}</Button>
                     <Button onClick={leaveRoom} className="mt-2 btn-danger" style={{width:'120px', margin:'auto'}}>Leave</Button>
 
                 </div>
+            </div>
+            <div className='ECcont'>
+                <div className='econt'>
+                    <Editor
+                        conns={myConns}
+                        roomId={roomId}
+                        onCodeChange={setcode}
+                        code = {code}
+                        lang={lang}
+                        peer={peer}
+                        sendHandler = {sendHandler}
+                    />
+                </div>
                 
             </div>
-            
             
         </div>
     )
