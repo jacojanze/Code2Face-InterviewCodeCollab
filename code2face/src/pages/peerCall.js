@@ -69,7 +69,6 @@ const PeerCall = () => {
     }
 
     async function detectFaceMotions() {
-        // console.log(myVideo);
         if(!myVideo.current) return;
         
         timer = setInterval(async()=> {
@@ -111,7 +110,7 @@ const PeerCall = () => {
 
     useEffect(() => {
         //take camera permission
-        navigator?.mediaDevices?.getUserMedia({video : true})
+        navigator?.mediaDevices?.getUserMedia({video : true, audio: true})
             .then(videoStream => {
                 dataStream= videoStream;
                 setstream(videoStream);
@@ -119,8 +118,6 @@ const PeerCall = () => {
                 // initialize socket
                 init(videoStream)
 
-                if(interviewer)
-                    detectFaceMotions()
             })
             .catch((error) => {
                 console.log(error);
@@ -138,6 +135,8 @@ const PeerCall = () => {
                 myPeerId = id
                 
                 addVideo(videoStream, id, myName)
+                if(interviewer)
+                    detectFaceMotions()
                 let flag = interviewer ? false :  true
                 fetch(`${server}join`, {
                     method: "POST",
@@ -298,12 +297,12 @@ const PeerCall = () => {
 
         const video = document.createElement('video')
         video.srcObject=vstream;
-        video.muted = true
         video.addEventListener('loadedmetadata', () => {
             video.play()
         })
         // console.log(peerID, myPeerId);
         if(peerID==myPeerId) {
+            video.muted = true
             myVideo.current = video
         }
 
