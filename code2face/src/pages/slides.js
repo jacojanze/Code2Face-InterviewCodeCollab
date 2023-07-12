@@ -11,7 +11,7 @@ const Slides = () => {
     useEffect(() => {
         async function fetchData() {
             try {
-            const res= await fetch(`${serverLink}/get_data`, {
+            const res= await fetch(`${serverLink}get_data`, {
                 method: "GET",
                 headers: {
                 "Content-Type": "application/json"
