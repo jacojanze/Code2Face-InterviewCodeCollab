@@ -132,7 +132,6 @@ const PeerCall = () => {
             // PeerJS functionality starts 
             peer = new Peer({
                 host: server_host,
-                port: 3007,
                 path: '/myapp',
             })
             // once peer created join room
@@ -233,6 +232,10 @@ const PeerCall = () => {
                     toast.error("Coudn't leave the room at the current moment")
                 }
                 peer.destroy();
+            }
+            if (dataStream) {
+                const tracks = dataStream.getTracks();
+                tracks.forEach((track) => track.stop());
             }
         };
     }, []);
@@ -370,7 +373,6 @@ const PeerCall = () => {
 
         let ele = document.getElementById('screen');
         if (ele && ele.srcObject ) {
-            console.log(ele.srcObject);
             const tracks = ele.srcObject.getTracks();
             tracks.forEach((track) => track.stop());
         }
