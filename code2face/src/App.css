@@ -19,12 +19,21 @@ a{
 }
 
 
+.content {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+  
+
+
 /* home */
 .main-home{
 
     /* display: grid;
     grid-template-columns: 1fr 1fr; */
     display: flex;
+    flex-grow: 1;
     flex-direction: row;
     flex-wrap: wrap-reverse;
     align-items: center;
@@ -32,6 +41,7 @@ a{
     padding-top: 1em;
     margin: auto 15vw;
     text-align: center;
+    height: 90%;
 }
 
 .cen-container{

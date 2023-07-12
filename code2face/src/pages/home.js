@@ -5,6 +5,7 @@ import ShortUniqueId from 'short-unique-id';
 import toast from 'react-hot-toast'
 import copy from 'copy-to-clipboard';
 import { Carousel } from 'react-bootstrap';
+import Footer from '../components/footer';
 
 const Home = () => {
     const Suid = new ShortUniqueId()
@@ -81,6 +82,7 @@ const Home = () => {
     }
     
     return (
+        <>
         <div className='main-home'>
             <div className='cen-container'>
                 {/* <Image src='/qna.png' className='img-fluid' /> */}
@@ -148,6 +150,7 @@ const Home = () => {
                                             onClick={generateCode}
                                         >Generate {fclick ? 'Again' : ''}</Button>
                                 </Form.Group>
+                                <h4>or</h4>
                             
                         </div>
                         <div className='jcontent mt-4'>
@@ -194,6 +197,8 @@ const Home = () => {
                 </div>
             </div>
         </div>
+        <Footer ></Footer>
+        </>
     )
 }
 

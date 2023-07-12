@@ -5,8 +5,6 @@ import { initialState, reducer } from './reducers/userReducer';
 import 'react-bootstrap'
 //components and pages
 import MyNavbar from './components/navbar';
-import Register from './components/Register';
-import Login from './components/Login';
 import Home from './pages/home';
 import NotFound from './pages/NotFound';
 // import Testing from './pages/testing';
@@ -35,8 +33,6 @@ function App() {
                     <div className='content'>
                         <Routes>
                                 <Route eaxct path="/" element={<Home/>} />
-                                <Route exact path="/register" element={<Register/>} />
-                                <Route exact path="/login" element={<Login />} />
                                 {/* <Route exact path="/call/:roomId" element={<CallPage/>} /> */}
                                 <Route exact path="/call/:roomId" element={<PeerCall/>} />
                                 <Route exact path='/slides' element={<Slides/>} />

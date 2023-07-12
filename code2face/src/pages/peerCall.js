@@ -9,7 +9,7 @@ import Chat from "../components/pchat";
 import Editor from "../components/peditor";
 import "../styles/callpage.css";
 const server = process.env.REACT_APP_BACKEND_URI;
-
+const server_host = process.env.REACT_APP_BACKEND_HOST;
 const PeerCall = () => {
     const location = useLocation();
     const history = useNavigate();
@@ -18,9 +18,10 @@ const PeerCall = () => {
     const myName = location.state?.username
     const interviewer = location.state?.interviewer
 
-    const MOTION_THRESHOLD = 20;
+    const MOTION_THRESHOLD = 40;
     // const myConns = new Map()
     const [myConns, setMyConns] = useState(new Map())
+    const [mycalls,setMyCalls] = useState(new Set())
     const idName = new Map()
 
  
@@ -129,7 +130,11 @@ const PeerCall = () => {
         //socket connecting function
         const init = async (videoStream) => {
             // PeerJS functionality starts 
-            peer = new Peer()
+            peer = new Peer({
+                host: server_host,
+                port: 3007,
+                path: '/myapp',
+            })
             // once peer created join room
             peer.on('open', function(id) {
                 myPeerId = id
@@ -341,31 +346,54 @@ const PeerCall = () => {
         idName['screen'] = 'screen'
         navigator?.mediaDevices?.getDisplayMedia({audio : true}).then( displStream => {
 
-            dataStream=displStream
-            let ele = document.getElementById('myvid');
-            ele.srcObject = displStream
-
+            // dataStream=displStream
+            // let ele = document.getElementById('myvid');
+            // ele.srcObject = displStream
+            addVideo(displStream, 'screen','Screen')
+            replaceStream(displStream)
         }).catch((error) => {
             console.log(error);
         });
 
     }
 
+    function replaceStream( mediaStream) {
+        console.log(peer);
+        for(const [conn, name] of myConns) {
+            console.log(conn.peerConnection.getSenders());
+            console.log(conn);
+    }
+}
+
     function stopCapture(evt) {
         setDisplayCheck(!displayCheck)
 
-        let ele = document.getElementById('myvid');
+        let ele = document.getElementById('screen');
         if (ele && ele.srcObject ) {
+            console.log(ele.srcObject);
             const tracks = ele.srcObject.getTracks();
             tracks.forEach((track) => track.stop());
         }
-        dataStream = stream
-        ele.srcObject = stream
-
+        ele?.remove();
     }
 
     function leaveRoom() {
         if(peer) {
+            try {
+                fetch(`${server}leave`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    roomId,
+                    peerId:myPeerId,
+                })
+                })
+            } catch(err) {
+                console.log(err);
+                toast.error("Coudn't leave the room at the current moment")
+            }
             peer.destroy()
         }
         clearInterval(timer)
