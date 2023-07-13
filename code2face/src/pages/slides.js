@@ -3,22 +3,21 @@ import { Carousel } from 'react-bootstrap';
 import toast from 'react-hot-toast'
 const serverLink = process.env.REACT_APP_BACKEND_URI
 const Slides = () => {
-
-    const [data, setData] = useState(Array([
-        {"heading":"om ","body":"om"}
-    ]))
+    let local_Data = localStorage.getItem('slides')
+    const [data, setData] = useState(local_Data!=undefined ? JSON.parse(local_Data) : [])
 
     useEffect(() => {
         async function fetchData() {
             try {
-            const res= await fetch(`${serverLink}get_data`, {
-                method: "GET",
-                headers: {
-                "Content-Type": "application/json"
-                },
-            });
-            const newData = await res.json();
-            setData(newData)
+                const res= await fetch(`${serverLink}get_data`, {
+                    method: "GET",
+                    headers: {
+                    "Content-Type": "application/json"
+                    },
+                });
+                const newData = await res.json();
+                setData(newData)
+                localStorage.setItem('slides', JSON.stringify(newData))
             } catch(error) {
                 console.log(error);
                 toast.error("Error receiving data")

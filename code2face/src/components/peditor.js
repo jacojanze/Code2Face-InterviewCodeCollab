@@ -15,11 +15,8 @@ import { xcodeDark, xcodeLight } from '@uiw/codemirror-theme-xcode';
 import { eclipse } from '@uiw/codemirror-theme-eclipse';
 import { abcdef } from '@uiw/codemirror-theme-abcdef';
 import { solarizedDark } from '@uiw/codemirror-theme-solarized';
-import ACTIONS from '../Actions';
-import copy from 'copy-to-clipboard';
-import toast from 'react-hot-toast';
 import "../styles/editor.css"
-import { Button } from 'react-bootstrap';
+
 
 
 // const extensions = [javascript()]
@@ -62,11 +59,7 @@ const Editor = ({ sendHandler, roomId, onCodeChange, code, lang }) => {
           },
         onChange:  (value) => {
             onCodeChange(value)
-            // console.log(conns);
             sendHandler(3,{value})
-            // for(let {conn, name} of conns) {
-            //     conn.send({sig:3, data:{value}})
-            // }
         }
 
     })
@@ -121,12 +114,7 @@ const Editor = ({ sendHandler, roomId, onCodeChange, code, lang }) => {
         }
     },[lang])
 
-    const copyCode = (e) => {
-        e.preventDefault();
-        if (copy(roomId))
-            toast.success('Session ID copied')
-        else toast.error('Cannot copy to clipboard')
-    }
+
 
     return (
         <div className='editorcomponent'>
@@ -147,10 +135,7 @@ const Editor = ({ sendHandler, roomId, onCodeChange, code, lang }) => {
                 <option value={"python"}>python</option>
             </select>
             <div ref={editorRef} className='ide' ></div>
-            <div className='d-flex'>
-                {/* <Button className='mt-3 mx-4 btn-secondary' onClick={updateCode} >Update Code</Button> */}
-                <Button className='mt-3 btn-info' onClick={copyCode} >Copy Session Id</Button>
-            </div>
+       
         </div>
     );
 }

@@ -1,5 +1,5 @@
 .callpage{
-    margin: 1em 5em;
+    margin: 1em 5em 0 ;
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-items: center;
@@ -27,28 +27,64 @@
 
 }
 
+/* .row {
+    margin-: auto;
+} */
+
 video {
     width: 20vw;
     border-radius: 1em;
-    /* left: 0;
-    margin: auto;
-    margin-left: -40px; */
     margin-left: -8em;
 }
 
 .tagName{
     font-weight: 600;
-    background-color: rgba(240, 248, 255, 0.685);
-    border-radius: 2px;
-    padding: 2px;
-    
-    margin-left: -15vw;
+    background-color: black;
+    color: white;
+    border-radius:0  0 1em 1em ;
+    width: 20vw;
+    margin-left: -20vw;
+    display: inline-block;
 }
-
 
 .ECcont {
     width:50vw;
     height: 80vh;
     margin: auto;
     margin-right: 0 !important;
+}
+
+/* Bottom div */
+.options {
+    margin: auto;
+    margin-top: 0;
+    margin-bottom: 1em;
+    display: grid;
+    height: max-content;
+    padding: 0.5em;
+    grid-template-columns: 2fr 2fr 2fr 2fr 2fr;
+    
+}
+
+.chat-toggler {
+    margin-left: 50px;
+    margin-top: -0.5em;
+}
+
+.chat-toggler img{
+    width: 4em;
+}
+
+.fix_close {
+    position: fixed;
+    right: 2em;
+    width: 2em;
+    bottom: 1.5em;
+}
+
+.chatCont{
+    position: fixed;
+    right: 4em;
+    bottom: 1.5em;
+    z-index: 10;
 }

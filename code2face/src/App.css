@@ -25,6 +25,11 @@ a{
     min-height: 100%;
   }
   
+.disclaimer{
+    margin: auto;
+    text-align: center;
+    width: 75vw;
+}
 
 
 /* home */
@@ -115,6 +120,20 @@ a{
 
 }
 
+
+.form-check .form-check-input {
+    margin-left: -1em ;
+    float: none !important;
+}
+
+.afterHoverText{
+    visibility: hidden;
+    font-size: x-small;
+}
+
+.infoIcon:hover ~ .afterHoverText{
+    visibility: visible;
+}
 
 
 

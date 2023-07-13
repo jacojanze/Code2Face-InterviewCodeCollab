@@ -5,6 +5,7 @@ import ShortUniqueId from 'short-unique-id';
 import toast from 'react-hot-toast'
 import copy from 'copy-to-clipboard';
 import { Carousel } from 'react-bootstrap';
+import {InfoCircleFill} from 'react-bootstrap-icons'
 import Footer from '../components/footer';
 
 const Home = () => {
@@ -178,17 +179,20 @@ const Home = () => {
                                         value={uname}
                                     />
                                 </Form.Group>
-                                <Form.Group>
+                                <Form.Group className='ml-2'>
                                     <Form.Check
                                         type="switch"
                                         id="custom-switch"
-                                        label="I am Interviewer"
+                                        label="Join as Interviewer "
                                         value={interviewer}
                                         name='interviewer'
                                         onChange={handleSwitch}
+                                        style={{display: 'inline', textAlign: 'left !important', padding: '5px'}}
                                     />
+                                    <InfoCircleFill className='infoIcon'></InfoCircleFill>
+                                    <span className="afterHoverText">Toggle to disable Face Monitoring</span>
                                 </Form.Group>
-                                <Form.Group >
+                                <Form.Group className='mt-2'>
                                     <Button onClick={handleJoin}>Join Call</Button>
                                 </Form.Group>
 
@@ -196,6 +200,12 @@ const Home = () => {
                     </div>
                 </div>
             </div>
+        </div>
+        <div className='disclaimer'>
+            <h5>Note:</h5>
+            <p>Sit in well lit room and Face camera to avoid misbehaviour notifications. Please prefer Chrome Browser for better experience .
+                Currently connecting to users with in the same Network
+            </p>
         </div>
         <Footer ></Footer>
         </>

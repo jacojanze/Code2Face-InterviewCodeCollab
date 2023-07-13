@@ -6,6 +6,7 @@ import {Peer} from 'peerjs'
 import { Button } from "react-bootstrap";
 import * as faceapi from 'face-api.js'
 import Chat from "../components/pchat";
+import copy from 'copy-to-clipboard';
 import Editor from "../components/peditor";
 import "../styles/callpage.css";
 const server = process.env.REACT_APP_BACKEND_URI;
@@ -36,6 +37,7 @@ const PeerCall = () => {
     const [allPeers, setAllPeers] = useState([])
     const [stream, setstream] = useState(null)
     const [lang, setLang] = useState('javascript')
+    const [chatState, setChatState] = useState(false)
     // const [audio, setAudio] = useState()
     // const [display, setdisplay] = useState()
     const [displayCheck, setDisplayCheck] = useState(false)
@@ -43,7 +45,7 @@ const PeerCall = () => {
     const [sirId, setsirId] = useState(null)
     const myVideo = useRef() 
     const codeRef = useRef(null);
-    const [code, setcode] = useState(`one\ntwo\nthree\nfour\nfive`)
+    const [code, setcode] = useState(`console.log("Live shared Code Editor")`)
     
     //Face motion logic
     function analyzeFaceMotions(landmarks) {       
@@ -85,6 +87,7 @@ const PeerCall = () => {
             }
             if(userMoves > 12) {
                 toast.error("Warning! Interviewer will be notified if movement is observed again.")
+                userMoves=userMoves-2;
                 warned=true;
             }
             const detections  = await  faceapi.detectAllFaces(myVideo.current, 
@@ -93,6 +96,7 @@ const PeerCall = () => {
             
             if(myVideo.current && detections.length==0) {
                 toast.error("Please sit in a well lit room and face the Webcam!")
+                alert('Face cannot be detected ! Please sit in a weel lit area.')
                 userMoves++;
             }
             else if(detections?.length > 1) {
@@ -106,7 +110,7 @@ const PeerCall = () => {
                 toast.error(" Please face the webcam!")
             }
 
-        }, 1000 )
+        }, 2500 )
     }
 
     useEffect(() => {
@@ -123,17 +127,18 @@ const PeerCall = () => {
             .catch((error) => {
                 console.log(error);
                 return <Navigate to="/" />;
-
             });
         //load faceapi Models
         loadModels()  
         //socket connecting function
         const init = async (videoStream) => {
             // PeerJS functionality starts 
-            peer = new Peer({
+            var peer_params = {
                 host: server_host,
                 path: '/myapp',
-            })
+            }
+            if(server_host=='localhost') peer_params['port'] = 3007
+            peer = new Peer(peer_params)
             // once peer created join room
             peer.on('open', function(id) {
                 myPeerId = id
@@ -213,7 +218,8 @@ const PeerCall = () => {
 
         // Clean up function to remove camera permissions and end socket
         return () => {
-
+            const ele = document.getElementById(myPeerId)
+            ele?.remove()
             clearInterval(timer)
             if(peer) {
                 try {
@@ -255,6 +261,7 @@ const PeerCall = () => {
                 const {id,name} = data
                 myConns.set(conn, name)
                 idName[id]=name
+                conn.send(3, {value:code})
                 break;
             }
             case 2:{
@@ -265,6 +272,7 @@ const PeerCall = () => {
             case 3:{
             // code update
                 const {value} = data
+                console.log(value);
                 if(value!=code)
                     setcode(value);
             }
@@ -279,6 +287,7 @@ const PeerCall = () => {
     }
 
     const addRecvMsg = (text,name='Unknown') => {
+        setChatState(true)
         const element = 
             ` <div class='receive'>
                     <div class='msg'>
@@ -291,7 +300,8 @@ const PeerCall = () => {
         rdiv.setAttribute('class', 'msg-container')
         const par = document.getElementById('msg-div')
         par?.appendChild(rdiv)  
-        par.scrollTop = par.scrollHeight
+        if(par)
+            par.scrollTop = par.scrollHeight
     }
     
 
@@ -300,7 +310,7 @@ const PeerCall = () => {
         const prev = document.getElementById(peerID)
         prev?.remove()
         const row = document.createElement('div')
-        row.setAttribute('className', 'row')
+        row.setAttribute('class', 'mt-2')
         row.setAttribute('id', peerID)
 
         const video = document.createElement('video')
@@ -378,6 +388,16 @@ const PeerCall = () => {
         }
         ele?.remove();
     }
+    const copyCode = (e) => {
+        e.preventDefault();
+        if (copy(roomId))
+            toast.success('Session ID copied')
+        else toast.error('Cannot copy to clipboard')
+    }
+
+    function chatHider() {
+        setChatState(chatState => !chatState)
+    }
 
     function leaveRoom() {
         if(peer) {
@@ -398,6 +418,10 @@ const PeerCall = () => {
             }
             peer.destroy()
         }
+        if (dataStream) {
+            const tracks = dataStream.getTracks();
+            tracks.forEach((track) => track.stop());
+        }
         clearInterval(timer)
         history('/');
     }
@@ -408,24 +432,25 @@ const PeerCall = () => {
 
 
     return (
+    <>
         <div className='callpage'>
             <div className='vcont' id='peerDiv'>
                 
                 <div className="row">
-                    <Chat 
+                    {/* <Chat 
                         recvMsg={addRecvMsg}
                         conns = {myConns}
                         roomId={roomId}
                         username = {myName}
                         sendHandler = {sendHandler}
                         peer={peer}
-                    />
+                    /> */}
                 </div>
-                <div className='row options'>
+                {/* <div className='row'>
                     <Button onClick={!displayCheck ? screenShareHandler : stopCapture} className="mt-2"  style={{width:'180px', margin:'auto'}}>{!displayCheck?'Screen Share' : 'Stop Share'}</Button>
                     <Button onClick={leaveRoom} className="mt-2 btn-danger" style={{width:'120px', margin:'auto'}}>Leave</Button>
 
-                </div>
+                </div> */}
             </div>
             <div className='ECcont'>
                 <div className='econt'>
@@ -439,10 +464,46 @@ const PeerCall = () => {
                         sendHandler = {sendHandler}
                     />
                 </div>
+            
                 
             </div>
-            
         </div>
+        <div className="options">
+            <Button onClick={leaveRoom} className="mt-2 btn-danger" style={{width:'120px', margin:'auto'}}>Leave</Button>
+            <Button onClick={!displayCheck ? screenShareHandler : stopCapture} className="mt-2"  style={{width:'170px', margin:'auto'}}>{!displayCheck?'Screen Share' : 'Stop Share'}</Button>
+            <Button onClick={copyCode} className="mt-2 btn-info" style={{width:'160px', margin:'auto' , marginLeft: '20px'}}>Copy Session Id</Button>
+            <div className="chat-toggler" onClick={chatHider}>
+            { !chatState ? 
+                    <img src="/toggle_chat.png"></img>
+                    : <></>
+                    // <Chat 
+                    //     recvMsg={addRecvMsg}
+                    //     conns = {myConns}
+                    //     roomId={roomId}
+                    //     username = {myName}
+                    //     sendHandler = {sendHandler}
+                    //     peer={peer}
+                    //     className='chatCont'
+                    // />
+            }
+            </div>
+        </div>
+        { !chatState ? 
+                    <></>
+                    : <>
+                    <Chat 
+                        recvMsg={addRecvMsg}
+                        conns = {myConns}
+                        roomId={roomId}
+                        username = {myName}
+                        sendHandler = {sendHandler}
+                        peer={peer}
+                        className='chatCont'
+                    />
+                    <img src="/close_chat.png" onClick={chatHider} className="fix_close"></img>
+                    </>
+            }
+    </>
     )
 }
 
