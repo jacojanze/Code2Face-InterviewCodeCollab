@@ -203,8 +203,7 @@ const Home = () => {
         </div>
         <div className='disclaimer'>
             <h5>Note:</h5>
-            <p>Sit in well lit room and Face camera to avoid misbehaviour notifications. Please prefer Chrome Browser for better experience .
-                Currently connecting to users with in the same Network
+            <p>Sit in well lit room and Face camera to avoid misbehaviour notifications. 
             </p>
         </div>
         <Footer ></Footer>
