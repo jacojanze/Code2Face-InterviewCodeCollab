@@ -1,5 +1,6 @@
 import React, {useEffect, useState, useRef, useMemo} from 'react'
 import { useLocation } from 'react-router-dom';
+import { Button, Form } from 'react-bootstrap';
 // codemirror components
 import { useCodeMirror } from '@uiw/react-codemirror';
 
@@ -16,7 +17,9 @@ import { eclipse } from '@uiw/codemirror-theme-eclipse';
 import { abcdef } from '@uiw/codemirror-theme-abcdef';
 import { solarizedDark } from '@uiw/codemirror-theme-solarized';
 import "../styles/editor.css"
+import { toast } from 'react-hot-toast';
 
+var qs = require('qs');
 
 
 // const extensions = [javascript()]
@@ -31,6 +34,9 @@ const Editor = ({ sendHandler, roomId, onCodeChange, code, lang }) => {
     const [selectValue, setSelectValue] = useState('javascript')
     const [extensions, setExtensions] = useState([javascript()])
     const [placeholder, setPlaceholder] = useState('Please enter the code.');
+    const [input, setInput] = useState('')
+    const [output, setOutput] = useState('')
+    const [ran, setran] = useState(false)
     const thememap = new Map()
     const langnMap = new Map()
     
@@ -96,6 +102,12 @@ const Editor = ({ sendHandler, roomId, onCodeChange, code, lang }) => {
     themeInit()
     langInit()
 
+    function langCode(e) {
+        if(e=='javascript') return 'js';
+        else if(e=='python') return 'py';
+        return e;
+    }
+
     useEffect(() => {
         if(!editorRef.current) {
             alert('error loading editor')
@@ -114,10 +126,49 @@ const Editor = ({ sendHandler, roomId, onCodeChange, code, lang }) => {
         }
     },[lang])
 
+    const compile = (e) => {
+        e.preventDefault();
+        var data = qs.stringify({
+            'code': code,
+            'language': langCode(selectValue),
+            'input': input
+        });
+        var config = {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body : data
+        };
+        fetch('https://api.codex.jaagrav.in',config)
+        .then(res => res.json())
+        .then(data => {
+            if(data['error'].length==0) {
+                // console.log(data['output']);
+                toast.success("compiled sucessfully")
+                setOutput(data['output'])
+            }
+            else {
+                // console.log(data['error']);
+                toast.error("compilation error")
+                setOutput(data['error'])
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+    }
 
+    const handleInputChange =(e) => {
+        setInput(e.target.value)
+    }
+    const handleOutputChange = (e) => {
+        setOutput(e.target.value)
+    }
 
     return (
         <div className='editorcomponent'>
+            <div></div>
             <span>Theme:</span>
             <select onChange={handleThemeChange} >
                 <option default value={"githubDark"}>githubDark</option>
@@ -127,15 +178,26 @@ const Editor = ({ sendHandler, roomId, onCodeChange, code, lang }) => {
                 <option value={"solarizedDark"}>solarizedDark</option>
                 <option value={"abcdef"}>abcdef</option>
             </select>
-            <span>Language:</span>
+            <span>Lang:</span>
             <select onChange={handleLanguageChange} value={selectValue}>
-                <option default value={"javascript"}>javascript</option>
-                <option value={"java"}>java</option>
-                <option value={"cpp"}>cpp</option>
-                <option value={"python"}>python</option>
+                <option default value={"javascript"}>JS</option>
+                <option value={"java"}>Java</option>
+                <option value={"cpp"}>Cpp</option>
+                <option value={"python"}>Python</option>
             </select>
+            <button className='run ' onClick={compile}  >Run</button>
             <div ref={editorRef} className='ide' ></div>
-       
+            <div className='iodiv'>
+                <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+                    <Form.Label>Input</Form.Label>
+                    <Form.Control as="textarea" rows={2} value={input} onChange={handleInputChange}/>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+                    <Form.Label>Output</Form.Label>
+                    <Form.Control as="textarea" rows={2} value={output} onChange={handleOutputChange} disabled/>
+                </Form.Group>
+
+            </div>
         </div>
     );
 }

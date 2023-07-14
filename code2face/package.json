@@ -24,6 +24,7 @@
     "dotenv": "^16.1.4",
     "face-api.js": "^0.22.2",
     "peerjs": "^1.4.7",
+    "qs": "^6.11.2",
     "react": "^18.2.0",
     "react-bootstrap": "^2.7.4",
     "react-bootstrap-icons": "^1.10.3",

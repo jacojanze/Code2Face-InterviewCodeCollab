@@ -7,3 +7,21 @@
 	border: solid 2px gray;
 	border-radius: 10px;
 }
+
+.ͼ5j {
+    height: 55vh !important;
+}
+
+.iodiv{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.run {
+    padding: 0.2em 1em;
+    margin-left: 1em;
+    background-color: black;
+    color: white;
+    border-radius: 10px;
+    border: 0;
+}

@@ -27,14 +27,11 @@
 
 }
 
-/* .row {
-    margin-: auto;
-} */
 
 video {
     width: 20vw;
     border-radius: 1em;
-    margin-left: -8em;
+    /* margin-left: -em; */
 }
 
 .tagName{
@@ -47,6 +44,27 @@ video {
     display: inline-block;
 }
 
+.actName{
+    display: block;
+    background-color: aliceblue;
+    border-radius: 1em;
+    width: 20vw;
+    margin: auto;
+}
+.dot{
+    width: 1em;
+    height: 1em;
+    border-radius: 1em;
+    background-color: rgb(4, 232, 4);
+    display: inline-block;
+    padding-left: 2px;
+    margin-left: 1em;
+    margin-top: 2px;
+    /* margin: auto; */
+}
+
+
+/* editor panel*/
 .ECcont {
     width:50vw;
     height: 80vh;
