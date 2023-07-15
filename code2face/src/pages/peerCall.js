@@ -31,11 +31,13 @@ const PeerCall = () => {
     var warned = false;
     var peer = null
     var dataStream = null
+    var screenStream = null
     var myPeerId;
     var timer;
 
     const [allPeers, setAllPeers] = useState([])
     const [stream, setstream] = useState(null)
+
     const [lang, setLang] = useState('javascript')
     const [chatState, setChatState] = useState(false)
     const [displayCheck, setDisplayCheck] = useState(false)
@@ -167,6 +169,7 @@ const PeerCall = () => {
                             conn.send({sig:1,data:{id, name:myName}})
                             let call = peer.call(peerId, videoStream)
                             call.on('stream', (remoteStream) => {
+                                mycalls.add(call)
                                 addVideo(remoteStream, peerId, username)
                             })
                         })
@@ -206,6 +209,7 @@ const PeerCall = () => {
 
             peer.on('call', (call) => {
                 call.answer(videoStream)
+                mycalls.add(call)
                 call.on('stream', (remoteStream) => {
                     addVideo(remoteStream, call.peer, idName[call.peer])
                 })
@@ -355,10 +359,7 @@ const PeerCall = () => {
         setDisplayCheck(!displayCheck)
         idName['screen'] = 'screen'
         navigator?.mediaDevices?.getDisplayMedia({audio : true}).then( displStream => {
-
-            // dataStream=displStream
-            // let ele = document.getElementById('myvid');
-            // ele.srcObject = displStream
+            screenStream=displStream
             addVideo(displStream, 'screen','Screen')
             replaceStream(displStream)
         }).catch((error) => {
@@ -367,20 +368,33 @@ const PeerCall = () => {
 
     }
 
-    function replaceStream( mediaStream) {
-        console.log(peer);
-        for(const [conn, name] of myConns) {
-            console.log(conn.peerConnection.getSenders());
-            console.log(conn);
+    const replaceStream = ( mediaStream) => {
+        console.log(mediaStream);
+        for(const call of mycalls) {
+            for(let sender of call.peerConnection?.getSenders()){
+                if(sender.track.kind == "audio") {
+                    if(mediaStream.getAudioTracks().length > 0){
+                        sender.replaceTrack(mediaStream.getAudioTracks()[0]);
+                    }
+                }
+                if(sender.track.kind == "video") {
+                    if(mediaStream.getVideoTracks().length > 0){
+                        sender.replaceTrack(mediaStream.getVideoTracks()[0]);
+                    }
+                }
+            }
+        }
     }
-}
+
 
     function stopCapture(evt) {
+        evt.preventDefault()
         setDisplayCheck(!displayCheck)
-
-        let ele = document.getElementById('screen');
-        if (ele && ele.srcObject ) {
-            const tracks = ele.srcObject.getTracks();
+        replaceStream(stream)
+        let ele = document.getElementById('screen')
+        const evid  = ele?.childNodes[1];
+        if (evid && evid.srcObject ) {
+            const tracks = evid.srcObject.getTracks();
             tracks.forEach((track) => track.stop());
         }
         ele?.remove();
@@ -440,7 +454,7 @@ const PeerCall = () => {
                 </div>
                 <div className="options d-flex flex-wrap">
                     <Button onClick={leaveRoom} className="mt-2 btn-danger" style={{width:'120px', margin:'auto'}}>Leave</Button>
-                    {/* <Button onClick={!displayCheck ? screenShareHandler : stopCapture} className="mt-2"  style={{width:'170px', margin:'auto'}}>{!displayCheck?'Screen Share' : 'Stop Share'}</Button> */}
+                    <Button onClick={!displayCheck ? screenShareHandler : stopCapture} className="mt-2"  style={{width:'170px', margin:'auto'}}>{!displayCheck?'Screen Share' : 'Stop Share'}</Button>
                     <Button onClick={copyCode} className="mt-2 btn-info" style={{width:'160px', margin:'auto' , marginLeft: '20px'}}>Copy Session Id</Button>
                     <div className="chat-toggler" onClick={chatHider}>
                     { !chatState ? 
