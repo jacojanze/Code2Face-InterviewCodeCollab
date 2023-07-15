@@ -3,6 +3,10 @@
   text-align: center;
 } */
 
+.content {
+    padding: 0 4em;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;

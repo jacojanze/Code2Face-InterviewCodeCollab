@@ -38,13 +38,9 @@ const PeerCall = () => {
     const [stream, setstream] = useState(null)
     const [lang, setLang] = useState('javascript')
     const [chatState, setChatState] = useState(false)
-    // const [audio, setAudio] = useState()
-    // const [display, setdisplay] = useState()
     const [displayCheck, setDisplayCheck] = useState(false)
-    // const [myPeerId, useState(null)
     const [sirId, setsirId] = useState(null)
     const myVideo = useRef() 
-    const codeRef = useRef(null);
     const [code, setcode] = useState(`console.log("Live shared Code Editor")`)
     
     //Face motion logic
@@ -159,7 +155,8 @@ const PeerCall = () => {
                     flag
                     })
                 }).then(res => res.json())
-                .then(data => {
+                .then(res_arr => {
+                    const {data} = res_arr
                     setAllPeers(data);
                     for(const {peerId, username} of data) {
                    
@@ -433,24 +430,25 @@ const PeerCall = () => {
 
     return (
     <>
-        <div className='callpage'>
-            <div className='vcont' id='peerDiv'>
-                
-                <div className="row">
-                    {/* <Chat 
-                        recvMsg={addRecvMsg}
-                        conns = {myConns}
-                        roomId={roomId}
-                        username = {myName}
-                        sendHandler = {sendHandler}
-                        peer={peer}
-                    /> */}
-                </div>
-                {/* <div className='row'>
-                    <Button onClick={!displayCheck ? screenShareHandler : stopCapture} className="mt-2"  style={{width:'180px', margin:'auto'}}>{!displayCheck?'Screen Share' : 'Stop Share'}</Button>
-                    <Button onClick={leaveRoom} className="mt-2 btn-danger" style={{width:'120px', margin:'auto'}}>Leave</Button>
+        <div className='callpage d-flex flex-wrap'>
+            <div className='vcont' >
+                <div id="peerDiv">
 
-                </div> */}
+                <div className='' id="users">
+                    
+                </div>
+                </div>
+                <div className="options d-flex flex-wrap">
+                    <Button onClick={leaveRoom} className="mt-2 btn-danger" style={{width:'120px', margin:'auto'}}>Leave</Button>
+                    {/* <Button onClick={!displayCheck ? screenShareHandler : stopCapture} className="mt-2"  style={{width:'170px', margin:'auto'}}>{!displayCheck?'Screen Share' : 'Stop Share'}</Button> */}
+                    <Button onClick={copyCode} className="mt-2 btn-info" style={{width:'160px', margin:'auto' , marginLeft: '20px'}}>Copy Session Id</Button>
+                    <div className="chat-toggler" onClick={chatHider}>
+                    { !chatState ? 
+                            <img src="/toggle_chat.png"></img>
+                            : <></>
+                    }
+                    </div>
+                </div>
             </div>
             <div className='ECcont'>
                 <div className='econt'>
@@ -468,26 +466,7 @@ const PeerCall = () => {
                 
             </div>
         </div>
-        <div className="options">
-            <Button onClick={leaveRoom} className="mt-2 btn-danger" style={{width:'120px', margin:'auto'}}>Leave</Button>
-            <Button onClick={!displayCheck ? screenShareHandler : stopCapture} className="mt-2"  style={{width:'170px', margin:'auto'}}>{!displayCheck?'Screen Share' : 'Stop Share'}</Button>
-            <Button onClick={copyCode} className="mt-2 btn-info" style={{width:'160px', margin:'auto' , marginLeft: '20px'}}>Copy Session Id</Button>
-            <div className="chat-toggler" onClick={chatHider}>
-            { !chatState ? 
-                    <img src="/toggle_chat.png"></img>
-                    : <></>
-                    // <Chat 
-                    //     recvMsg={addRecvMsg}
-                    //     conns = {myConns}
-                    //     roomId={roomId}
-                    //     username = {myName}
-                    //     sendHandler = {sendHandler}
-                    //     peer={peer}
-                    //     className='chatCont'
-                    // />
-            }
-            </div>
-        </div>
+        
         { !chatState ? 
                     <></>
                     : <>

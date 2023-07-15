@@ -30,13 +30,14 @@ const Editor = ({ sendHandler, roomId, onCodeChange, code, lang }) => {
     const location = useLocation()
     const uname = location?.state?.username
     const [theme, setTheme] = useState(githubDark);
-    // const [code, setcode] = useState(code);
+    // const [code, se==1ode] = useState(code);
     const [selectValue, setSelectValue] = useState('javascript')
     const [extensions, setExtensions] = useState([javascript()])
     const [placeholder, setPlaceholder] = useState('Please enter the code.');
     const [input, setInput] = useState('')
     const [output, setOutput] = useState('')
     const [ran, setran] = useState(false)
+    const [tc,setTc] = useState(true)
     const thememap = new Map()
     const langnMap = new Map()
     
@@ -144,12 +145,12 @@ const Editor = ({ sendHandler, roomId, onCodeChange, code, lang }) => {
         .then(res => res.json())
         .then(data => {
             if(data['error'].length==0) {
-                // console.log(data['output']);
+                setTc(true)
                 toast.success("compiled sucessfully")
                 setOutput(data['output'])
             }
             else {
-                // console.log(data['error']);
+                setTc(false)
                 toast.error("compilation error")
                 setOutput(data['error'])
             }
@@ -187,14 +188,14 @@ const Editor = ({ sendHandler, roomId, onCodeChange, code, lang }) => {
             </select>
             <button className='run ' onClick={compile}  >Run</button>
             <div ref={editorRef} className='ide' ></div>
-            <div className='iodiv'>
-                <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+            <div className='iodiv d-flex flex-wrap'>
+                <Form.Group className="mb-3 ioarea" controlId="exampleForm.ControlTextarea1">
                     <Form.Label>Input</Form.Label>
                     <Form.Control as="textarea" rows={2} value={input} onChange={handleInputChange}/>
                 </Form.Group>
-                <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+                <Form.Group className="mb-3 ioarea" controlId="exampleForm.ControlTextarea1">
                     <Form.Label>Output</Form.Label>
-                    <Form.Control as="textarea" rows={2} value={output} onChange={handleOutputChange} disabled/>
+                    <Form.Control as="textarea" rows={2} value={output} className={tc ? 'ctxt' : 'etxt'} onChange={handleOutputChange} disabled/>
                 </Form.Group>
 
             </div>

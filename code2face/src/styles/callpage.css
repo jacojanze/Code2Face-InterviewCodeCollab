@@ -1,14 +1,22 @@
 .callpage{
-    margin: 1em 5em 0 ;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    /* margin: 1em 5em 0 ; */
     align-items: center;
+    padding-left: 2em;
     /* text-align: center; */
 }
+/* 
+.col-1{
+    width: 50%;
+}
+
+.col-2{
+    width: 50%;
+} */
 
 .vcont{
-    margin-left: 20px ;
-    margin-right: 10px;
+    /* margin-left: 20px ;
+    margin-right: 10px; */
+    margin: auto;
     padding: 0 1em;
     display: flex;
     flex-direction: column;
@@ -24,7 +32,6 @@
 .f-height{
     height: 400px;
     overflow: auto;
-
 }
 
 
@@ -66,10 +73,8 @@ video {
 
 /* editor panel*/
 .ECcont {
-    width:50vw;
     height: 80vh;
     margin: auto;
-    margin-right: 0 !important;
 }
 
 /* Bottom div */
@@ -106,3 +111,15 @@ video {
     bottom: 1.5em;
     z-index: 10;
 }
+
+
+
+@media only screen and (max-width: 768px) {
+    /* For mobile phones: */
+    [class*="col-"] {
+      width: 100%;
+    }
+    .content{
+        padding: 10px;
+    }
+  }

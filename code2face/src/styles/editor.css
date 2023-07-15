@@ -3,7 +3,6 @@
 }
 
 .cm-editor{
-	/* text-align: left !important; */
 	border: solid 2px gray;
 	border-radius: 10px;
 }
@@ -12,9 +11,17 @@
     height: 55vh !important;
 }
 
-.iodiv{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+.ioarea{
+    margin: 5px;
+    min-width: 20vw;
+}
+
+.etxt {
+    color: red;
+}
+
+.ctxt{
+    color: green;
 }
 
 .run {
@@ -24,4 +31,18 @@
     color: white;
     border-radius: 10px;
     border: 0;
+}
+
+@media only screen and (max-width: 768px) {
+    /* For mobile phones: */
+    .cm-editor{
+        width: 80vw;
+    }
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (max-width: 992px) {
+    .cm-editor{
+        width: 70vw;
+    }
 }
