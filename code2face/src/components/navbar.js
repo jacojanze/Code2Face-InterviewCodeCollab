@@ -37,6 +37,8 @@ const Navbar = () => {
                     {/* <Link to='/testing' className="navlink">Test</Link>  */}
 					{/* <Link key='login' className="navlink" to="/login">Login</Link> */}
 					{/* <Link key='register' className="navlink" to="/register">Register</Link> */}
+					<Link key='slides' className="navlink" to="/motivation">Motivation</Link>
+					{/* <Link key='slides' className="navlink" to="/features">Features</Link> */}
 					<Link key='slides' className="navlink" to="/slides">Revision</Link>
 					
 				</>,

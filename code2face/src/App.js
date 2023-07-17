@@ -12,6 +12,8 @@ import { Toaster } from 'react-hot-toast';
 import Slides from './pages/slides';
 import AddSlides from './pages/addSlides';
 import PeerCall from './pages/peerCall';
+import Motivation from './pages/motivation';
+import Features from './pages/features';
 
 
 export const UserContext = createContext();
@@ -30,7 +32,7 @@ function App() {
             <Router >
                 <div className='App'>
                     <MyNavbar/>
-                    <div className='content'>
+                    <div className='content d-flex'>
                         <Routes>
                                 <Route eaxct path="/" element={<Home/>} />
                                 {/* <Route exact path="/call/:roomId" element={<CallPage/>} /> */}
@@ -38,6 +40,8 @@ function App() {
                                 <Route exact path='/slides' element={<Slides/>} />
                                 <Route exact path='/add' element={<AddSlides/>} />
                                 {/* <Route path="/chat" element={<Chat/>} /> */}
+                                <Route exact path='/motivation' element={<Motivation />} />
+                                {/* <Route exact path='/features' element={<Features />} /> */}
                                 <Route path="*" element={<NotFound/>} />
                         </Routes>
                     </div>

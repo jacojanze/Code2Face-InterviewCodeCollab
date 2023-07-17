@@ -124,6 +124,7 @@ const PeerCall = () => {
             })
             .catch((error) => {
                 console.log(error);
+                toast.error('Cannot connect without video and audio permissions')
                 return <Navigate to="/" />;
             });
         //load faceapi Models

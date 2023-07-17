@@ -203,7 +203,8 @@ const Home = () => {
         </div>
         <div className='disclaimer'>
             <h5>Note:</h5>
-            <p>Sit in well lit room and Face camera to avoid misbehaviour notifications. 
+            <p>Sit in well lit room and Face camera to avoid misbehaviour notifications. <br></br>
+            If your video is not visible, hard reload the page and rejoin.
             </p>
         </div>
         <Footer ></Footer>

@@ -38,7 +38,7 @@ a{
 
 /* home */
 .main-home{
-
+    flex: 1;
     /* display: grid;
     grid-template-columns: 1fr 1fr; */
     display: flex;
@@ -139,8 +139,11 @@ a{
     visibility: visible;
 }
 
-
-
+/* motivation page */
+.mot p{
+    font-size: large;
+    /* font-family: ; */
+}
 
 /* error page  */
 .errorpage{
