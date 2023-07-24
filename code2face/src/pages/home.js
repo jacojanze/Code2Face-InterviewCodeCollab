@@ -207,7 +207,6 @@ const Home = () => {
             If your video is not visible, hard reload the page and rejoin.
             </p>
         </div>
-        <Footer ></Footer>
         </>
     )
 }

@@ -14,7 +14,7 @@ import AddSlides from './pages/addSlides';
 import PeerCall from './pages/peerCall';
 import Motivation from './pages/motivation';
 import Features from './pages/features';
-
+import Footer from './components/footer';
 
 export const UserContext = createContext();
 
@@ -30,6 +30,8 @@ function App() {
                 />
             </div>
             <Router >
+                <div className='wrapper' >
+
                 <div className='App'>
                     <MyNavbar/>
                     <div className='content d-flex'>
@@ -45,6 +47,8 @@ function App() {
                                 <Route path="*" element={<NotFound/>} />
                         </Routes>
                     </div>
+                </div>
+                    <Footer />
                 </div>
             </Router>
          </UserContext.Provider>

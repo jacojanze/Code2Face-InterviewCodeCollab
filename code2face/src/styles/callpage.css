@@ -73,7 +73,7 @@ video {
 
 /* editor panel*/
 .ECcont {
-    height: 80vh;
+    min-height: 80vh;
     margin: auto;
 }
 

@@ -9,6 +9,16 @@ body {
   /* background-color: rgba(0, 0, 0, 0.863) !important;  */
 }
 
+.wrapper{
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.App{
+    flex: 1;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
