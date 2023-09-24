@@ -4,7 +4,7 @@ One Place Solution for conducting Online COding Interviews with functionality of
 
 
 ### Features
-- <img src='/code2face/public/demo.jpg' />
+<!-- - <img src='/code2face/public/demo.jpg' /> -->
 <!-- attach screen shots here -->
 - #### Video Calling
 - #### Screen Sharing
