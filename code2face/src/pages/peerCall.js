@@ -370,7 +370,6 @@ const PeerCall = () => {
     }
 
     const replaceStream = ( mediaStream) => {
-        console.log(mediaStream);
         for(const call of mycalls) {
             for(let sender of call.peerConnection?.getSenders()){
                 if(sender.track.kind == "audio") {
